@@ -45,8 +45,18 @@ export const appState = {
   ],
 };
 
-export const $ = (id) => document.getElementById(id);
-
+export const $ = (id) => {
+  const el = document.getElementById(id);
+  if (!el) {
+    // Returns a dummy element so .addEventListener() won't crash the script
+    return {
+      addEventListener: () => {},
+      classList: { add: () => {}, remove: () => {} },
+      style: {},
+    };
+  }
+  return el;
+};
 // 2. VIEW MANAGEMENT ENGINE
 export function showView(viewName) {
   [
@@ -93,7 +103,7 @@ function resetBodyBackground() {
   if ($("sticker-canvas")) $("sticker-canvas").innerHTML = "";
 }
 
-// Replace your section 3 with this clean, vanilla JS block:
+// 3. THEME MANAGEMENT ENGINE
 function initThemeManager() {
   const themeBtn = document.getElementById("global-theme-toggle-btn");
   const savedTheme = localStorage.getItem("pulse-rush-theme");
@@ -102,7 +112,7 @@ function initThemeManager() {
     document.body.classList.add("dark-theme");
     if (themeBtn) {
       themeBtn.textContent = "☀️";
-      AppState.isDarkTheme = true;
+      appState.isDarkTheme = true;
     }
   }
 
@@ -112,7 +122,7 @@ function initThemeManager() {
       const darkActive = document.body.classList.contains("dark-theme");
       themeBtn.textContent = darkActive ? "☀️" : "🌙";
       localStorage.setItem("pulse-rush-theme", darkActive ? "dark" : "light");
-      AppState.isDarkTheme = darkActive;
+      appState.isDarkTheme = darkActive;
     });
   }
 }

@@ -214,6 +214,30 @@ export function initQuiz() {
   $("generate-pin-btn").addEventListener("click", generateQuizPinAndSave);
   $("join-quiz-form").addEventListener("submit", joinQuizHandler);
 
+  // --- Local File Upload Handler System Integration ---
+  const localFileInput = document.getElementById("local-file-input");
+  if (localFileInput) {
+    localFileInput.addEventListener("change", function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        const fileNameDisplay = document.getElementById("file-name-display");
+        if (fileNameDisplay) {
+          fileNameDisplay.textContent = file.name;
+        }
+
+        saveCurrentQuestionState();
+        const localImageURL = URL.createObjectURL(file);
+
+        // Save URL string into state so it targets the correct element securely
+        if (quizQuestions.length > 0) {
+          quizQuestions[currentQuestionIndex].imageUrl = localImageURL;
+        }
+
+        displayImageOnCard(localImageURL);
+      }
+    });
+  }
+
   // Real-Time Control System Triggers
   $("start-game-btn").addEventListener("click", async () => {
     if (appState.currentGamePin) {
@@ -268,6 +292,7 @@ function startNewQuiz() {
   currentQuestionIndex = 0;
   renderCurrentQuestion();
 }
+
 function updateQuestionCounter() {
   $("question-counter-display").textContent =
     `Questions: ${quizQuestions.length}`;
@@ -304,7 +329,7 @@ function saveCurrentQuestionState() {
   const q = quizQuestions[currentQuestionIndex];
   q.question = $("question-input").value.trim();
   q.timer = parseInt($("timer-input").value) || 20;
-  q.maxPoints = parseInt($("points-input").value) || 1000; // Phase 3 variable input reading
+  q.maxPoints = parseInt($("points-input").value) || 1000;
 
   const optionInputs = $("options-container").querySelectorAll(".option-input");
   q.options = Array.from(optionInputs).map((optEl, index) => {
@@ -324,6 +349,7 @@ export function renderFinalizeList() {
     $("finalize-list").appendChild(li);
   });
 }
+
 function populateStickerGrid() {
   $("sticker-grid").innerHTML = "";
   stickers.forEach((s) => {
@@ -333,6 +359,7 @@ function populateStickerGrid() {
     $("sticker-grid").appendChild(btn);
   });
 }
+
 function makeDraggable(element) {
   let pos1 = 0,
     pos2 = 0,
@@ -357,12 +384,14 @@ function makeDraggable(element) {
     };
   };
 }
+
 function shareToWhatsApp(pin) {
   window.open(
     `https://wa.me/?text=${encodeURIComponent(`Enter this Game PIN to join: ${pin}`)}`,
     "_blank",
   );
 }
+
 function copyText(text, btnId, defaultText) {
   const textArea = document.createElement("textarea");
   textArea.value = text;
@@ -581,7 +610,6 @@ function listenToGameUpdates(pin, isHost) {
         .map((doc) => ({ id: doc.id, ...doc.data() }))
         .sort((a, b) => b.score - a.score);
 
-      // 3. Live Join Screen Interceptor
       if ($("game-lobby-view").classList.contains("active")) {
         updateLobbyList(appState.currentPlayersList);
       }
@@ -667,7 +695,6 @@ function listenToGameUpdates(pin, isHost) {
   );
 }
 
-// 3. Render joined users with a custom entrance animation style sheet
 function updateLobbyList(players) {
   const listEl = $("lobby-players-list");
   listEl.innerHTML = "";
@@ -727,13 +754,11 @@ function renderPlayableQuestion(index, startTime, isHost) {
     optionsContainer.innerHTML = "";
     appState.lastAnswerSubmitted = null;
 
-    // Remove old banner references if they exist
     const oldBonusIndicator = $("play-area").querySelector(
       ".speed-bonus-indicator",
     );
     if (oldBonusIndicator) oldBonusIndicator.remove();
 
-    // Inject active dynamic bonus notice
     const bonusNotice = document.createElement("div");
     bonusNotice.className = "speed-bonus-indicator animated-pop";
     bonusNotice.textContent = "⚡ Faster answers earn up to +500 bonus points!";
@@ -755,7 +780,6 @@ function renderPlayableQuestion(index, startTime, isHost) {
           .querySelectorAll(".play-option-btn")
           .forEach((b) => (b.disabled = true));
 
-        // Track precise execution timestamp local delta
         await updateDoc(
           doc(
             appState.db,
@@ -813,7 +837,6 @@ function renderPlayableQuestion(index, startTime, isHost) {
       }
     }
 
-    // Automatic submission lock when timer hits absolute zero (0)
     if (remaining <= 0) {
       clearInterval(appState.questionTimerInterval);
       if (isHost) {
@@ -857,12 +880,10 @@ async function handleHostTimerExpiration() {
       isCorrect = true;
 
       if (timeTaken < questionDuration && timeTaken > 0) {
-        // Professional Mentimeter algorithm scoring calculation logic mapping
         const speedRatio = (questionDuration - timeTaken) / questionDuration;
         const speedBonusPoints = 500 * speedRatio;
-        scoreToAdd = Math.round(500 + speedBonusPoints); // Max 1000, Min 500 for answering correctly at the very last second
+        scoreToAdd = Math.round(500 + speedBonusPoints);
       } else {
-        // Fallback safe minimum baseline default score parameters
         scoreToAdd = 500;
       }
     }
@@ -950,7 +971,7 @@ function renderLeaderboardUI(players, containerId, isHost, isFinal = false) {
     if (status === "question") return;
     if (status === "leaderboard" && top3Container) {
       top3Container.style.display = "flex";
-      if ($("leaderboard-list")) $("leaderboard-list").innerHTML = ""; // Wipe out host card frame
+      if ($("leaderboard-list")) $("leaderboard-list").innerHTML = "";
     }
   }
 
@@ -962,7 +983,6 @@ function renderLeaderboardUI(players, containerId, isHost, isFinal = false) {
   if (p2) p2.innerHTML = "";
   if (p3) p3.innerHTML = "";
 
-  // 1. Live Leaderboard Layout Matrix (Top 5 Allocation)
   if (players.length > 0 && p1)
     p1.innerHTML = `<div class="leaderboard-avatar-box rank-pop-1"><img src="${players[0].avatarUrl || appState.avatars[0]}" class="leaderboard-avatar"><span class="leaderboard-rank-badge crown">🏆</span></div><span class="leaderboard-name">${players[0].name}</span><span class="leaderboard-score">${players[0].score} pts</span>`;
   if (players.length > 1 && p2)
@@ -971,7 +991,6 @@ function renderLeaderboardUI(players, containerId, isHost, isFinal = false) {
     p3.innerHTML = `<div class="leaderboard-avatar-box rank-pop-3"><img src="${players[2].avatarUrl || appState.avatars[0]}" class="leaderboard-avatar"><span class="leaderboard-rank-badge">🥉</span></div><span class="leaderboard-name">${players[2].name}</span><span class="leaderboard-score">${players[2].score} pts</span>`;
 
   if (listEl) {
-    // Strict limit to Top 5 players total
     players.slice(3, 5).forEach((p, i) => {
       const li = document.createElement("li");
       li.className = "leaderboard-item-rest animated-row";
@@ -1011,7 +1030,6 @@ async function calculateAndShowScore(players, isHost) {
   renderLeaderboardUI(players, "score-area", isHost, true);
   triggerConfettiExplosion();
 
-  // Only allow the presenter/host instance to save historical logs to prevent duplicates
   if (isHost && appState.currentQuizData) {
     try {
       const totalScoreSum = players.reduce((sum, p) => sum + p.score, 0);
@@ -1029,7 +1047,6 @@ async function calculateAndShowScore(players, isHost) {
         creatorId: appState.currentUserId,
       };
 
-      // Write summary record item to the analytical logging system history database
       await addDoc(
         collection(appState.db, "quizHistory"),
         historicalLogSummary,
@@ -1039,7 +1056,6 @@ async function calculateAndShowScore(players, isHost) {
     }
   }
 
-  // Process rank increments...
   try {
     if (players[0])
       await updateDoc(doc(appState.db, "users", players[0].id), {
@@ -1075,7 +1091,6 @@ function grandfatherLeaderboardReset() {
   return listEl;
 }
 
-// 4. Client Side Dynamic Confetti Generator Injection
 function triggerConfettiExplosion() {
   for (let i = 0; i < 100; i++) {
     const confetti = document.createElement("div");
@@ -1154,36 +1169,11 @@ export async function loadGameReport(pin, playerId, playerName = "Your") {
   });
   showView("game-report-view");
 }
-// --- Local File Upload Handler ---
-
-const localFileInput = document.getElementById("local-file-input");
-const fileNameDisplay = document.getElementById("file-name-display");
-
-// Check if the element exists first to prevent console errors
-if (localFileInput) {
-  localFileInput.addEventListener("change", function (event) {
-    const file = event.target.files[0];
-
-    if (file) {
-      // 1. Show the chosen file name next to the button
-      if (fileNameDisplay) {
-        fileNameDisplay.textContent = file.name;
-      }
-
-      // 2. Create a temporary URL pointing to the local file
-      const localImageURL = URL.createObjectURL(file);
-
-      // 3. Render it to your question card preview element
-      displayImageOnCard(localImageURL);
-    }
-  });
-}
 
 function displayImageOnCard(url) {
-  // Targets the specific image preview element we added to your index.html
   const targetImg = document.getElementById("question-image-preview");
   if (targetImg) {
     targetImg.src = url;
-    targetImg.style.display = "block"; // Makes it visible once loaded
+    targetImg.style.display = "block";
   }
 }
