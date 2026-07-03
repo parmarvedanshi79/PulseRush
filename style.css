@@ -1589,3 +1589,11 @@ body.dark-theme .report-item {
   padding: 8px 16px;
   white-space: nowrap; /* Keeps text and moon on a single line */
 }
+/* Fix the alignment and prevent overlapping for the top right theme button */
+#global-theme-toggle-btn.theme-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  white-space: nowrap; /* Forces text/emoji to stay on one clean line */
+}

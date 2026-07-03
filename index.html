@@ -562,34 +562,33 @@
                   style="display: none"
                 />
               </div>
-              <div class="quiz-editor-main form-container">
-                <div class="question-meta-row">
-                  <div class="meta-item question-number">Q1</div>
+             <div class="quiz-editor-main form-container">
+  
+  <div class="question-meta-row">
+    <div class="meta-item">
+      <label>Q1</label> 
+    </div>
+    <div class="meta-item">
+      <label for="timer-input">Timer (sec):</label>
+      <input type="number" id="timer-input" value="20">
+    </div>
+    <div class="meta-item">
+      <label for="points-input">Max Points:</label>
+      <input type="number" id="points-input" value="1000">
+    </div>
+  </div>
 
-                  <div class="meta-item">
-                    <label for="timer-input">Timer (sec):</label>
-                    <input type="number" id="timer-input" value="20" />
-                  </div>
+  <div class="question-card-input input-with-icon">
+    <input type="text" id="question-input" placeholder="Enter Question">
+    <button type="button" class="add-image-button" data-target="question">
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3C/svg%3E" alt="Add">
+    </button>
+  </div>
 
-                  <div class="meta-item">
-                    <label for="points-input">Max Points:</label>
-                    <input type="number" id="points-input" value="1000" />
-                  </div>
-                </div>
+  <div id="import-message" class="message-label" style="min-height: 1.2rem; margin-bottom: 1rem; font-weight: 600;"></div>
+  <img src="" class="image-preview" id="question-image-preview" style="display: none;">
 
-                <div class="question-meta-row">
-                  <div class="meta-item question-number">Q1</div>
-
-                  <div class="meta-item">
-                    <label for="timer-input">Timer (sec):</label>
-                    <input type="number" id="timer-input" value="20" />
-                  </div>
-
-                  <div class="meta-item">
-                    <label for="points-input">Max Points:</label>
-                    <input type="number" id="points-input" value="1000" />
-                  </div>
-                </div>
+</div>
 
                 <div class="question-meta-row">
                   <div class="meta-item question-number">Q1</div>
