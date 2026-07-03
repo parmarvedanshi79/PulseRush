@@ -1,4 +1,4 @@
-async function mainAuth() {
+export async function mainAuth() {
   const app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
@@ -134,4 +134,3 @@ async function mainAuth() {
     $("forgot-password-view").style.display = "none";
   });
 }
- mainAuth();
