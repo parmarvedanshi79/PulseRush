@@ -93,23 +93,26 @@ function resetBodyBackground() {
   if ($("sticker-canvas")) $("sticker-canvas").innerHTML = "";
 }
 
-// 3. THEME MANAGER FUNCTION
+// Replace your section 3 with this clean, vanilla JS block:
 function initThemeManager() {
+  const themeBtn = document.getElementById("global-theme-toggle-btn");
   const savedTheme = localStorage.getItem("pulse-rush-theme");
+
   if (savedTheme === "dark") {
     document.body.classList.add("dark-theme");
-    if ($("#global-theme-toggle-btn"))
-      $("#global-theme-toggle-btn").textContent = "☀️";
-    appState.isDarkTheme = true;
+    if (themeBtn) {
+      themeBtn.textContent = "☀️";
+      AppState.isDarkTheme = true;
+    }
   }
 
-  if ($("#global-theme-toggle-btn")) {
-    $("#global-theme-toggle-btn").addEventListener("click", () => {
+  if (themeBtn) {
+    themeBtn.addEventListener("click", () => {
       document.body.classList.toggle("dark-theme");
       const darkActive = document.body.classList.contains("dark-theme");
-      $("#global-theme-toggle-btn").textContent = darkActive ? "☀️" : "🌙";
+      themeBtn.textContent = darkActive ? "☀️" : "🌙";
       localStorage.setItem("pulse-rush-theme", darkActive ? "dark" : "light");
-      appState.isDarkTheme = darkActive;
+      AppState.isDarkTheme = darkActive;
     });
   }
 }
