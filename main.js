@@ -1,6 +1,5 @@
 import "./firebase.js";
 import "./state.js";
-import "./utils.js";
 import "./ui.js";
 import "./avatar.js";
 import "./feedback.js";
