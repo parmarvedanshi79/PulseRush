@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div class="theme-switch-container">
+      <button id="global-theme-toggle-btn" class="theme-switch-btn">🌙</button>
+    </div>
     <div id="auth-page-container">
       <div class="page-container">
         <h1 class="logo">pulse rush</h1>
@@ -201,9 +204,16 @@
               <div id="play-area">
                 <h1 class="logo">pulse rush</h1>
                 <h3 id="player-question-display" class="player-q-display"></h3>
-                <div class="timer-bar-container">
-                  <div class="timer-bar" id="question-timer-bar"></div>
+
+                <div class="timer-container-professional">
+                  <div id="play-digital-timer" class="digital-countdown-clock">
+                    --
+                  </div>
+                  <div class="timer-bar-container">
+                    <div class="timer-bar" id="question-timer-bar"></div>
+                  </div>
                 </div>
+
                 <h2 id="play-question-text" class="question-text"></h2>
                 <img
                   src=""
@@ -216,9 +226,10 @@
                   id="play-message"
                   class="message-label"
                   style="
-                    color: var(--incorrect-red);
+                    color: var(--text-color);
                     min-height: 1.2rem;
                     margin-top: 1rem;
+                    font-weight: 700;
                   "
                 ></div>
                 <button
@@ -322,10 +333,12 @@
           </div>
         </div>
 
+        <!-- Upgraded Profiles Panel (Teacher & Student Dashboards) -->
         <div id="profile-view" class="content-view">
-          <div class="page-container" style="max-width: 450px">
+          <div class="page-container" style="max-width: 500px">
             <h1 class="logo">pulse rush</h1>
             <div class="form-container">
+              <!-- Profile Identity Header Section -->
               <div class="profile-header">
                 <div class="profile-avatar-container">
                   <img
@@ -337,8 +350,10 @@
                   <button id="edit-avatar-btn">✎</button>
                 </div>
                 <div id="name-display-wrapper">
-                  <h2 class="profile-name" id="profile-name-display"></h2>
-                  <button id="edit-name-btn">✎</button>
+                  <h2 class="profile-name" id="profile-name-display">
+                    Loading Name...
+                  </h2>
+                  <button id="edit-name-btn" aria-label="Edit Name">✎</button>
                 </div>
                 <div id="name-edit-wrapper">
                   <input
@@ -348,20 +363,56 @@
                   />
                   <button id="save-name-btn" class="btn">Save</button>
                 </div>
-                <p class="profile-username" id="profile-username-display"></p>
+                <p class="profile-username" id="profile-username-display">
+                  @username
+                </p>
               </div>
+
+              <!-- Navigation Tabs for Dashboard Segregation -->
               <div class="tabs profile-tabs">
                 <button class="tab-link active" id="details-tab-btn">
-                  Personal Details
+                  Student Dashboard
                 </button>
-                <button class="tab-link" id="about-tab-btn">My Quizzes</button>
+                <button class="tab-link" id="about-tab-btn">
+                  Teacher Dashboard
+                </button>
               </div>
+
+              <!-- Panel 1: Student View Dashboard Pane -->
               <div
                 id="details-content"
                 class="tab-content active profile-details"
               >
-                <p>E-mail: <span id="profile-email-display"></span></p>
-                <hr />
+                <p
+                  style="
+                    text-align: left;
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                  "
+                >
+                  Account E-mail:
+                  <span
+                    id="profile-email-display"
+                    style="font-weight: 400"
+                  ></span>
+                </p>
+                <hr
+                  style="
+                    border: none;
+                    border-top: 1px solid var(--border-color);
+                    margin: 1rem 0;
+                  "
+                />
+
+                <h3
+                  style="
+                    margin: 0 0 1rem 0;
+                    font-size: 1.1rem;
+                    text-align: left;
+                  "
+                >
+                  🏆 My Performance Podium
+                </h3>
                 <div class="podium-stats">
                   <div class="podium-item">
                     <span class="podium-icon">🥇</span>
@@ -379,21 +430,44 @@
                     <span class="podium-label">3rd Place</span>
                   </div>
                 </div>
-                <hr />
-                <h3>Games Joined</h3>
-                <div
-                  id="joined-games-list"
-                  style="margin-top: 1rem; text-align: left"
-                ></div>
+                <hr
+                  style="
+                    border: none;
+                    border-top: 1px solid var(--border-color);
+                    margin: 1rem 0;
+                  "
+                />
+
+                <!-- History Feed for Student Responses Evaluation -->
+                <div id="joined-games-list"></div>
               </div>
+
+              <!-- Panel 2: Teacher View Dashboard Pane -->
               <div id="about-content" class="tab-content profile-details">
-                <p>
-                  Total Quizzes Created: <span id="games-created-count">0</span>
+                <p
+                  style="
+                    text-align: left;
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                  "
+                >
+                  Total Managed Quizzes:
+                  <span
+                    id="games-created-count"
+                    style="font-weight: 700; color: var(--primary-pink)"
+                    >0</span
+                  >
                 </p>
-                <div
-                  id="created-games-list"
-                  style="margin-top: 1rem; text-align: left"
-                ></div>
+                <hr
+                  style="
+                    border: none;
+                    border-top: 1px solid var(--border-color);
+                    margin: 1rem 0;
+                  "
+                />
+
+                <!-- Dynamic Historical Ledger Cards Container -->
+                <div id="created-games-list"></div>
               </div>
             </div>
           </div>
@@ -503,6 +577,38 @@
                         alt="Add"
                       />
                     </button>
+                    <div
+                      class="input-with-icon"
+                      style="
+                        margin-bottom: 1rem;
+                        text-align: left;
+                        display: flex;
+                        gap: 1rem;
+                      "
+                    >
+                      <div>
+                        <label for="timer-input">Timer (sec): </label>
+                        <input
+                          type="number"
+                          id="timer-input"
+                          value="20"
+                          min="5"
+                          max="120"
+                          style="width: 80px"
+                        />
+                      </div>
+                      <div>
+                        <label for="points-input">Max Points: </label>
+                        <input
+                          type="number"
+                          id="points-input"
+                          value="1000"
+                          min="100"
+                          max="5000"
+                          style="width: 90px"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div

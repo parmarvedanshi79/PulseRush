@@ -166,7 +166,6 @@ export function initQuiz() {
     $("image-url-input").value = "";
   });
 
-  // Custom Canvas & Themes Modal Events
   $("change-bg-btn").addEventListener("click", () => {
     $("change-background-modal").style.display = "flex";
   });
@@ -207,32 +206,42 @@ export function initQuiz() {
     }
   });
 
-  // Excel Parser Handlers
   $("import-excel-btn").addEventListener("click", () =>
     $("excel-file-input").click(),
   );
   $("excel-file-input").addEventListener("change", handleExcelUpload);
 
-  // Dynamic Database Operations
   $("generate-pin-btn").addEventListener("click", generateQuizPinAndSave);
   $("join-quiz-form").addEventListener("submit", joinQuizHandler);
+
+  // Real-Time Control System Triggers
   $("start-game-btn").addEventListener("click", async () => {
-    if (appState.currentGamePin)
-      await updateDoc(doc(appState.db, "quizzes", appState.currentGamePin), {
-        "gameState.status": "initial_leaderboard",
-      });
-  });
-  $("host-next-btn").addEventListener("click", async () => {
-    if (
-      appState.currentQuizData &&
-      appState.currentGamePin &&
-      appState.currentQuizData.gameState.status === "initial_leaderboard"
-    )
+    if (appState.currentGamePin) {
       await updateDoc(doc(appState.db, "quizzes", appState.currentGamePin), {
         "gameState.status": "question",
         "gameState.currentQuestion": 0,
         "gameState.questionStartTime": serverTimestamp(),
       });
+    }
+  });
+
+  $("host-next-btn").addEventListener("click", async () => {
+    if (!appState.currentQuizData || !appState.currentGamePin) return;
+    const state = appState.currentQuizData.gameState;
+    const quizDocRef = doc(appState.db, "quizzes", appState.currentGamePin);
+
+    if (state.status === "leaderboard") {
+      const nextIdx = state.currentQuestion + 1;
+      if (nextIdx < appState.currentQuizData.questions.length) {
+        await updateDoc(quizDocRef, {
+          "gameState.status": "question",
+          "gameState.currentQuestion": nextIdx,
+          "gameState.questionStartTime": serverTimestamp(),
+        });
+      } else {
+        await updateDoc(quizDocRef, { "gameState.status": "finished" });
+      }
+    }
   });
 
   $("back-to-profile-from-report-btn").addEventListener("click", () =>
@@ -243,7 +252,6 @@ export function initQuiz() {
   );
 }
 
-// Sub-level logic functions
 function startNewQuiz() {
   quizQuestions = [
     {
@@ -296,6 +304,8 @@ function saveCurrentQuestionState() {
   const q = quizQuestions[currentQuestionIndex];
   q.question = $("question-input").value.trim();
   q.timer = parseInt($("timer-input").value) || 20;
+  q.maxPoints = parseInt($("points-input").value) || 1000; // Phase 3 variable input reading
+
   const optionInputs = $("options-container").querySelectorAll(".option-input");
   q.options = Array.from(optionInputs).map((optEl, index) => {
     const text = optEl.querySelector("input").value.trim();
@@ -520,11 +530,7 @@ async function joinQuizHandler(e) {
   const docSnap = await getDoc(doc(appState.db, "quizzes", pin));
   if (docSnap.exists()) {
     const quizData = docSnap.data();
-    if (
-      quizData.gameState &&
-      (quizData.gameState.status === "lobby" ||
-        quizData.gameState.status === "initial_leaderboard")
-    ) {
+    if (quizData.gameState && quizData.gameState.status === "lobby") {
       appState.currentGamePin = pin;
       appState.lastKnownScore = 0;
       appState.lastAnswerSubmitted = null;
@@ -555,7 +561,7 @@ async function joinQuizHandler(e) {
       showView("player-waiting-lobby");
       listenToGameUpdates(pin, false);
     } else {
-      errorLabel.textContent = "This game is not available to join.";
+      errorLabel.textContent = "This game has already started.";
     }
   } else {
     errorLabel.textContent = "Invalid PIN.";
@@ -574,21 +580,34 @@ function listenToGameUpdates(pin, isHost) {
       appState.currentPlayersList = snapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
         .sort((a, b) => b.score - a.score);
-      if (isHost && $("game-lobby-view").classList.contains("active"))
+
+      // 3. Live Join Screen Interceptor
+      if ($("game-lobby-view").classList.contains("active")) {
         updateLobbyList(appState.currentPlayersList);
+      }
+
+      if (!isHost && $("play-area").style.display === "block") {
+        const answeredCount = appState.currentPlayersList.filter(
+          (p) => p.lastAnswerIndex !== null && p.lastAnswerIndex !== undefined,
+        ).length;
+        $("play-message").textContent =
+          `Responses Submitted: ${answeredCount} / ${appState.currentPlayersList.length}`;
+      }
+
       if (
         $("leaderboard-area").style.display === "block" ||
         (isHost &&
           appState.currentQuizData &&
-          ["initial_leaderboard", "question", "leaderboard"].includes(
+          ["question", "leaderboard"].includes(
             appState.currentQuizData.gameState.status,
           ))
-      )
+      ) {
         renderLeaderboardUI(
           appState.currentPlayersList,
           "leaderboard-area",
           isHost,
         );
+      }
       if ($("score-area").style.display === "block")
         renderLeaderboardUI(
           appState.currentPlayersList,
@@ -611,26 +630,12 @@ function listenToGameUpdates(pin, isHost) {
       appState.currentQuizData = docSnap.data();
       const state = appState.currentQuizData.gameState;
       appState.currentQuestionInPlayIndex = state.currentQuestion;
+
       switch (state.status) {
         case "lobby":
           if (isHost) {
             showView("game-lobby-view");
             updateLobbyList(appState.currentPlayersList);
-          } else showView("player-waiting-lobby");
-          break;
-        case "initial_leaderboard":
-          showView("play-quiz-view");
-          if (isHost) {
-            $("play-area").style.display = "none";
-            $("leaderboard-area").style.display = "block";
-            $("score-area").style.display = "none";
-            $("player-answer-screen").style.display = "none";
-            renderLeaderboardUI(
-              appState.currentPlayersList,
-              "leaderboard-area",
-              isHost,
-            );
-            $("host-question-display").textContent = "Waiting to Start...";
           } else showView("player-waiting-lobby");
           break;
         case "question":
@@ -640,9 +645,6 @@ function listenToGameUpdates(pin, isHost) {
             state.questionStartTime,
             isHost,
           );
-          const qLabel = `QUESTION: ${state.currentQuestion + 1} / ${appState.currentQuizData.questions.length}`;
-          if (isHost) $("host-question-display").textContent = qLabel;
-          else $("player-question-display").textContent = qLabel;
           break;
         case "leaderboard":
           showView("play-quiz-view");
@@ -652,34 +654,9 @@ function listenToGameUpdates(pin, isHost) {
               "leaderboard-area",
               isHost,
             );
-            $("host-question-display").textContent =
-              `QUESTION: ${state.currentQuestion + 1} / ${appState.currentQuizData.questions.length}`;
-            setTimeout(async () => {
-              const freshDoc = await getDoc(
-                doc(appState.db, "quizzes", appState.currentGamePin),
-              );
-              if (
-                !freshDoc.exists() ||
-                freshDoc.data().gameState.status !== "leaderboard"
-              )
-                return;
-              const nextIdx = freshDoc.data().gameState.currentQuestion + 1;
-              if (nextIdx < freshDoc.data().questions.length)
-                await updateDoc(
-                  doc(appState.db, "quizzes", appState.currentGamePin),
-                  {
-                    "gameState.status": "question",
-                    "gameState.currentQuestion": nextIdx,
-                    "gameState.questionStartTime": serverTimestamp(),
-                  },
-                );
-              else
-                await updateDoc(
-                  doc(appState.db, "quizzes", appState.currentGamePin),
-                  { "gameState.status": "finished" },
-                );
-            }, 5000);
-          } else showPlayerAnswerScreen();
+          } else {
+            showPlayerAnswerScreen();
+          }
           break;
         case "finished":
           calculateAndShowScore(appState.currentPlayersList, isHost);
@@ -690,13 +667,18 @@ function listenToGameUpdates(pin, isHost) {
   );
 }
 
+// 3. Render joined users with a custom entrance animation style sheet
 function updateLobbyList(players) {
   const listEl = $("lobby-players-list");
-  listEl.innerHTML =
-    players.length === 0 ? "<li>Waiting for players...</li>" : "";
+  listEl.innerHTML = "";
+  if (players.length === 0) {
+    listEl.innerHTML = "<li>Waiting for players...</li>";
+    return;
+  }
   players.forEach((p) => {
     const li = document.createElement("li");
-    li.textContent = p.name;
+    li.className = "lobby-player-pill animated-pop";
+    li.innerHTML = `<span>👤 ${p.name}</span>`;
     listEl.appendChild(li);
   });
 }
@@ -705,39 +687,75 @@ function renderPlayableQuestion(index, startTime, isHost) {
   if (appState.questionTimerInterval)
     clearInterval(appState.questionTimerInterval);
   $("player-answer-screen").style.display = "none";
+
   const q = appState.currentQuizData.questions[index];
   const questionDuration = (q.timer || 20) * 1000;
   const questionStartTime = startTime ? startTime.toDate() : new Date();
+  const qLabel = `QUESTION: ${index + 1} / ${appState.currentQuizData.questions.length}`;
+
   if (isHost) {
     $("play-area").style.display = "none";
     $("leaderboard-area").style.display = "block";
     $("score-area").style.display = "none";
-    renderLeaderboardUI(
-      appState.currentPlayersList,
-      "leaderboard-area",
-      isHost,
-    );
+    $("host-question-display").textContent = qLabel;
+
+    const listEl = grandfatherLeaderboardReset();
+    listEl.innerHTML = `
+            <div class="host-question-card animated-pop">
+                <h2>${q.question}</h2>
+                <div id="host-response-tracker">Responses: 0 / 0</div>
+                <div class="timer-container-professional">
+                    <div id="host-digital-timer" class="digital-countdown-clock">--</div>
+                    <div class="timer-bar-container"><div class="timer-bar" id="host-timer-bar"></div></div>
+                </div>
+            </div>
+        `;
+    $("leaderboard-area").querySelector(".leaderboard-top3").style.display =
+      "none";
+    $("host-next-btn").style.display = "none";
   } else {
     $("play-area").style.display = "block";
     $("leaderboard-area").style.display = "none";
     $("score-area").style.display = "none";
+
+    $("player-question-display").textContent = qLabel;
     $("play-question-text").textContent = q.question;
     $("play-question-image").src = q.imageUrl || "";
     $("play-question-image").style.display = q.imageUrl ? "block" : "none";
-    const optionsContainer = $("play-quiz-options");
+
+    const optionsContainer = grandfatherOptionsContainerReset();
     optionsContainer.innerHTML = "";
     appState.lastAnswerSubmitted = null;
+
+    // Remove old banner references if they exist
+    const oldBonusIndicator = $("play-area").querySelector(
+      ".speed-bonus-indicator",
+    );
+    if (oldBonusIndicator) oldBonusIndicator.remove();
+
+    // Inject active dynamic bonus notice
+    const bonusNotice = document.createElement("div");
+    bonusNotice.className = "speed-bonus-indicator animated-pop";
+    bonusNotice.textContent = "⚡ Faster answers earn up to +500 bonus points!";
+    $("play-question-text").insertAdjacentElement("afterend", bonusNotice);
+
     q.options.forEach((opt, i) => {
       const button = document.createElement("button");
       button.className = "btn play-option-btn";
       button.textContent = opt.text;
       button.dataset.index = i;
+
       button.onclick = async () => {
         optionsContainer
           .querySelectorAll(".play-option-btn")
           .forEach((b) => b.classList.remove("selected"));
         button.classList.add("selected");
         appState.lastAnswerSubmitted = i;
+        optionsContainer
+          .querySelectorAll(".play-option-btn")
+          .forEach((b) => (b.disabled = true));
+
+        // Track precise execution timestamp local delta
         await updateDoc(
           doc(
             appState.db,
@@ -746,26 +764,69 @@ function renderPlayableQuestion(index, startTime, isHost) {
             "players",
             appState.currentUserId,
           ),
-          { lastAnswerIndex: i, lastAnswerTime: serverTimestamp() },
+          {
+            lastAnswerIndex: i,
+            lastAnswerTime: serverTimestamp(),
+          },
         );
       };
       optionsContainer.appendChild(button);
     });
   }
+
   appState.questionTimerInterval = setInterval(async () => {
     const elapsed = new Date() - questionStartTime;
     let remaining = questionDuration - elapsed;
     if (remaining < 0) remaining = 0;
-    if (!isHost)
+    const secondsLeft = Math.ceil(remaining / 1000);
+
+    if (isHost) {
+      const answeredCount = appState.currentPlayersList.filter(
+        (p) => p.lastAnswerIndex !== null && p.lastAnswerIndex !== undefined,
+      ).length;
+      const totalPlayers = appState.currentPlayersList.length;
+
+      if ($("host-response-tracker"))
+        $("host-response-tracker").textContent =
+          `Responses Submitted: ${answeredCount} / ${totalPlayers}`;
+      if ($("host-timer-bar"))
+        $("host-timer-bar").style.width =
+          (remaining / questionDuration) * 100 + "%";
+
+      const hostClock = $("host-digital-timer");
+      if (hostClock) {
+        hostClock.textContent = secondsLeft;
+        if (secondsLeft <= 5) hostClock.classList.add("timer-danger-pulse");
+        else hostClock.classList.remove("timer-danger-pulse");
+      }
+
+      if (totalPlayers > 0 && answeredCount === totalPlayers) remaining = 0;
+    } else {
       $("question-timer-bar").style.width =
         (remaining / questionDuration) * 100 + "%";
+
+      const playerClock = $("play-digital-timer");
+      if (playerClock) {
+        playerClock.textContent = secondsLeft;
+        if (secondsLeft <= 5) playerClock.classList.add("timer-danger-pulse");
+        else playerClock.classList.remove("timer-danger-pulse");
+      }
+    }
+
+    // Automatic submission lock when timer hits absolute zero (0)
     if (remaining <= 0) {
       clearInterval(appState.questionTimerInterval);
-      if (isHost) await handleHostTimerExpiration();
-      else
-        optionsContainer
-          .querySelectorAll(".play-option-btn")
-          .forEach((b) => (b.disabled = true));
+      if (isHost) {
+        await handleHostTimerExpiration();
+      } else {
+        const optsContainer = $("play-quiz-options");
+        if (optsContainer) {
+          optsContainer
+            .querySelectorAll(".play-option-btn")
+            .forEach((b) => (b.disabled = true));
+        }
+        $("play-message").textContent = "⏰ Time's Up! Evaluating responses...";
+      }
     }
   }, 100);
 }
@@ -779,10 +840,12 @@ async function handleHostTimerExpiration() {
   const playersSnapshot = await getDocs(
     collection(appState.db, "quizzes", appState.currentGamePin, "players"),
   );
+
   for (const pDoc of playersSnapshot.docs) {
     const pData = pDoc.data();
-    let scoreToAdd = 0,
-      isCorrect = false;
+    let scoreToAdd = 0;
+    let isCorrect = false;
+
     if (
       pData.lastAnswerIndex != null &&
       pData.lastAnswerIndex === q.correctAnswerIndex
@@ -792,11 +855,18 @@ async function handleHostTimerExpiration() {
         : new Date();
       const timeTaken = aTime - questionStartTime;
       isCorrect = true;
-      if (timeTaken < questionDuration && timeTaken > 0)
-        scoreToAdd = Math.round(
-          1000 * ((questionDuration - timeTaken) / questionDuration),
-        );
+
+      if (timeTaken < questionDuration && timeTaken > 0) {
+        // Professional Mentimeter algorithm scoring calculation logic mapping
+        const speedRatio = (questionDuration - timeTaken) / questionDuration;
+        const speedBonusPoints = 500 * speedRatio;
+        scoreToAdd = Math.round(500 + speedBonusPoints); // Max 1000, Min 500 for answering correctly at the very last second
+      } else {
+        // Fallback safe minimum baseline default score parameters
+        scoreToAdd = 500;
+      }
     }
+
     await updateDoc(pDoc.ref, {
       score: increment(scoreToAdd),
       lastAnswerIndex: null,
@@ -874,6 +944,16 @@ function renderLeaderboardUI(players, containerId, isHost, isFinal = false) {
   if (!container) return;
   const listEl = container.querySelector(".leaderboard-rest"),
     top3Container = container.querySelector(".leaderboard-top3");
+
+  if (containerId === "leaderboard-area") {
+    const status = appState.currentQuizData?.gameState.status;
+    if (status === "question") return;
+    if (status === "leaderboard" && top3Container) {
+      top3Container.style.display = "flex";
+      if ($("leaderboard-list")) $("leaderboard-list").innerHTML = ""; // Wipe out host card frame
+    }
+  }
+
   if (listEl) listEl.innerHTML = "";
   const p1 = top3Container?.querySelector(".place-1"),
     p2 = top3Container?.querySelector(".place-2"),
@@ -881,28 +961,38 @@ function renderLeaderboardUI(players, containerId, isHost, isFinal = false) {
   if (p1) p1.innerHTML = "";
   if (p2) p2.innerHTML = "";
   if (p3) p3.innerHTML = "";
+
+  // 1. Live Leaderboard Layout Matrix (Top 5 Allocation)
   if (players.length > 0 && p1)
-    p1.innerHTML = `<div class="leaderboard-avatar-box"><img src="${players[0].avatarUrl || appState.avatars[0]}" class="leaderboard-avatar"><span class="leaderboard-rank-badge crown">👑</span></div><span class="leaderboard-name">${players[0].name}</span><span class="leaderboard-score">${players[0].score}</span>`;
+    p1.innerHTML = `<div class="leaderboard-avatar-box rank-pop-1"><img src="${players[0].avatarUrl || appState.avatars[0]}" class="leaderboard-avatar"><span class="leaderboard-rank-badge crown">🏆</span></div><span class="leaderboard-name">${players[0].name}</span><span class="leaderboard-score">${players[0].score} pts</span>`;
   if (players.length > 1 && p2)
-    p2.innerHTML = `<div class="leaderboard-avatar-box"><img src="${players[1].avatarUrl || appState.avatars[0]}" class="leaderboard-avatar"><span class="leaderboard-rank-badge">2</span></div><span class="leaderboard-name">${players[1].name}</span><span class="leaderboard-score">${players[1].score}</span>`;
+    p2.innerHTML = `<div class="leaderboard-avatar-box rank-pop-2"><img src="${players[1].avatarUrl || appState.avatars[0]}" class="leaderboard-avatar"><span class="leaderboard-rank-badge">🥈</span></div><span class="leaderboard-name">${players[1].name}</span><span class="leaderboard-score">${players[1].score} pts</span>`;
   if (players.length > 2 && p3)
-    p3.innerHTML = `<div class="leaderboard-avatar-box"><img src="${players[2].avatarUrl || appState.avatars[0]}" class="leaderboard-avatar"><span class="leaderboard-rank-badge">3</span></div><span class="leaderboard-name">${players[2].name}</span><span class="leaderboard-score">${players[2].score}</span>`;
+    p3.innerHTML = `<div class="leaderboard-avatar-box rank-pop-3"><img src="${players[2].avatarUrl || appState.avatars[0]}" class="leaderboard-avatar"><span class="leaderboard-rank-badge">🥉</span></div><span class="leaderboard-name">${players[2].name}</span><span class="leaderboard-score">${players[2].score} pts</span>`;
+
   if (listEl) {
-    players.slice(3).forEach((p, i) => {
+    // Strict limit to Top 5 players total
+    players.slice(3, 5).forEach((p, i) => {
       const li = document.createElement("li");
-      li.className = "leaderboard-item-rest";
-      li.innerHTML = `<span class="leaderboard-rank">#${i + 4}</span><img src="${p.avatarUrl || appState.avatars[0]}" class="leaderboard-avatar" /><span class="leaderboard-name">${p.name}</span><span class="leaderboard-score">${p.score}</span>`;
+      li.className = "leaderboard-item-rest animated-row";
+      li.innerHTML = `<span class="leaderboard-rank">#${i + 4}</span><img src="${p.avatarUrl || appState.avatars[0]}" class="leaderboard-avatar" /><span class="leaderboard-name">${p.name}</span><span class="leaderboard-score">${p.score} pts</span>`;
       listEl.appendChild(li);
     });
   }
+
   if (containerId === "leaderboard-area" && isHost) {
     const nextBtn = $("host-next-btn");
     if (nextBtn) {
+      const isLastQuestion =
+        appState.currentQuestionInPlayIndex ===
+        appState.currentQuizData.questions.length - 1;
       nextBtn.style.display =
-        appState.currentQuizData?.gameState.status === "initial_leaderboard"
+        appState.currentQuizData?.gameState.status === "leaderboard"
           ? "block"
           : "none";
-      nextBtn.textContent = "Start First Question";
+      nextBtn.textContent = isLastQuestion
+        ? "Go to Winner Screen 🏆"
+        : "Next Question ➔";
     }
   }
 }
@@ -912,9 +1002,44 @@ async function calculateAndShowScore(players, isHost) {
   $("leaderboard-area").style.display = "none";
   $("player-answer-screen").style.display = "none";
   $("score-area").style.display = "block";
-  $("quiz-score-display").textContent =
-    players.find((p) => p.id === appState.currentUserId)?.score || 0;
+
+  const myData = players.find((p) => p.id === appState.currentUserId);
+  $("quiz-score-display").textContent = myData
+    ? `${myData.score} pts`
+    : "0 pts";
+
   renderLeaderboardUI(players, "score-area", isHost, true);
+  triggerConfettiExplosion();
+
+  // Only allow the presenter/host instance to save historical logs to prevent duplicates
+  if (isHost && appState.currentQuizData) {
+    try {
+      const totalScoreSum = players.reduce((sum, p) => sum + p.score, 0);
+      const averageScoreValue =
+        players.length > 0 ? Math.round(totalScoreSum / players.length) : 0;
+
+      const historicalLogSummary = {
+        quizPin: appState.currentGamePin,
+        quizName: appState.currentQuizData.quizName || "Unnamed Quiz",
+        date: new Date().toLocaleDateString(),
+        timestamp: serverTimestamp(),
+        winnerName: players[0] ? players[0].name : "No Participants",
+        participantCount: players.length,
+        averageScore: averageScoreValue,
+        creatorId: appState.currentUserId,
+      };
+
+      // Write summary record item to the analytical logging system history database
+      await addDoc(
+        collection(appState.db, "quizHistory"),
+        historicalLogSummary,
+      );
+    } catch (historyErr) {
+      console.error("Historical ledger logging write error:", historyErr);
+    }
+  }
+
+  // Process rank increments...
   try {
     if (players[0])
       await updateDoc(doc(appState.db, "users", players[0].id), {
@@ -931,11 +1056,43 @@ async function calculateAndShowScore(players, isHost) {
   } catch (err) {
     console.error(err);
   }
+
   if (appState.gameUnsubscribe) appState.gameUnsubscribe();
   if (appState.playerUnsubscribe) appState.playerUnsubscribe();
   appState.currentGamePin = null;
   appState.currentQuizData = null;
   appState.currentPlayersList = [];
+}
+
+function grandfatherLeaderboardReset() {
+  let listEl = $("leaderboard-list");
+  if (!listEl) {
+    listEl = document.createElement("ul");
+    listEl.id = "leaderboard-list";
+    listEl.className = "leaderboard-rest";
+    $("leaderboard-area").appendChild(listEl);
+  }
+  return listEl;
+}
+
+// 4. Client Side Dynamic Confetti Generator Injection
+function triggerConfettiExplosion() {
+  for (let i = 0; i < 100; i++) {
+    const confetti = document.createElement("div");
+    confetti.className = "confetti-particle";
+    confetti.style.left = Math.random() * 100 + "vw";
+    confetti.style.backgroundColor = [
+      "#ff006e",
+      "#FFD93D",
+      "#2ecc71",
+      "#3498db",
+      "#9b59b6",
+    ][Math.floor(Math.random() * 5)];
+    confetti.style.animationDelay = Math.random() * 2 + "s";
+    confetti.style.transform = `scale(${Math.random() * 0.5 + 0.5})`;
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 4000);
+  }
 }
 
 export async function loadHostReport(pin) {

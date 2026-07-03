@@ -18,7 +18,7 @@ const firebaseConfig = {
   measurementId: "G-BGNGZ63HF0",
 };
 
-// Global Context Reference Registry
+// 1. GLOBAL STATE REGISTER (Always kept at the absolute top-level)
 export const appState = {
   db: null,
   auth: null,
@@ -33,6 +33,8 @@ export const appState = {
   gameUnsubscribe: null,
   playerUnsubscribe: null,
   questionTimerInterval: null,
+  defaultPoints: 1000,
+  isDarkTheme: false,
   avatars: [
     "https://api.dicebear.com/8.x/adventurer/svg?seed=Mimi",
     "https://api.dicebear.com/8.x/adventurer/svg?seed=Leo",
@@ -45,6 +47,7 @@ export const appState = {
 
 export const $ = (id) => document.getElementById(id);
 
+// 2. VIEW MANAGEMENT ENGINE
 export function showView(viewName) {
   [
     "home-view",
@@ -90,18 +93,40 @@ function resetBodyBackground() {
   if ($("sticker-canvas")) $("sticker-canvas").innerHTML = "";
 }
 
-// Global Core Infrastructure Bootsheet
+// 3. THEME MANAGER FUNCTION
+function initThemeManager() {
+  const savedTheme = localStorage.getItem("pulse-rush-theme");
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-theme");
+    if ($("global-theme-toggle-btn"))
+      $("global-theme-toggle-btn").textContent = "☀️";
+    appState.isDarkTheme = true;
+  }
+
+  if ($("global-theme-toggle-btn")) {
+    $("global-theme-toggle-btn").addEventListener("click", () => {
+      document.body.classList.toggle("dark-theme");
+      const darkActive = document.body.classList.contains("dark-theme");
+      $("global-theme-toggle-btn").textContent = darkActive ? "☀️" : "🌙";
+      localStorage.setItem("pulse-rush-theme", darkActive ? "dark" : "light");
+      appState.isDarkTheme = darkActive;
+    });
+  }
+}
+
+// 4. LIFE-CYCLE INITIALIZATION LIFTER
 document.addEventListener("DOMContentLoaded", () => {
   const firebaseApp = initializeApp(firebaseConfig);
   appState.auth = getAuth(firebaseApp);
   appState.db = getFirestore(firebaseApp);
 
-  // Context Cross-Wiring Handshakes
+  // Bootstrap Features
   initAuth();
   initProfile();
   initAvatar();
   initQuiz();
   initFeedback();
+  initThemeManager();
 
   // Responsive Platform Adaptive Controls
   if (
@@ -113,7 +138,10 @@ document.addEventListener("DOMContentLoaded", () => {
       .querySelectorAll(".share-btn")
       .forEach((btn) => (btn.style.display = "none"));
     document.querySelectorAll(".copy-btn").forEach((btn) => {
-      if (btn.parentElement.classList.contains("button-group")) {
+      if (
+        btn.parentElement &&
+        btn.parentElement.classList.contains("button-group")
+      ) {
         btn.style.width = "100%";
         btn.style.flex = "unset";
       }
@@ -121,16 +149,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Navigation Base Interceptors
-  $("hamburger-btn").addEventListener("click", () =>
-    $("nav-dropdown").classList.toggle("open"),
-  );
-  $("home-nav-btn").addEventListener("click", () => showView("home-view"));
-  $("profile-nav-btn").addEventListener("click", () =>
-    showView("profile-view"),
-  );
-  $("logout-btn").addEventListener("click", () => {
-    if (appState.gameUnsubscribe) appState.gameUnsubscribe();
-    if (appState.playerUnsubscribe) appState.playerUnsubscribe();
-    appState.auth.signOut();
-  });
+  if ($("hamburger-btn"))
+    $("hamburger-btn").addEventListener("click", () =>
+      $("nav-dropdown").classList.toggle("open"),
+    );
+  if ($("home-nav-btn"))
+    $("home-nav-btn").addEventListener("click", () => showView("home-view"));
+  if ($("profile-nav-btn"))
+    $("profile-nav-btn").addEventListener("click", () =>
+      showView("profile-view"),
+    );
+  if ($("logout-btn")) {
+    $("logout-btn").addEventListener("click", () => {
+      if (appState.gameUnsubscribe) appState.gameUnsubscribe();
+      if (appState.playerUnsubscribe) appState.playerUnsubscribe();
+      appState.auth.signOut();
+    });
+  }
 });

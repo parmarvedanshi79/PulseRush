@@ -1304,3 +1304,253 @@ body:not(.is-host) #player-question-display {
   font-weight: 600;
   color: #777;
 }
+/* Phase 1 & Phase 4: Keyframe Animations & Render Mechanics */
+.lobby-player-pill {
+  background: var(--white-color) !important;
+  border: 2px solid #333 !important;
+  border-radius: 30px !important;
+  display: inline-block;
+  padding: 0.6rem 1.2rem !important;
+  margin: 0.4rem !important;
+  font-weight: 700 !important;
+  color: #333 !important;
+}
+
+.animated-pop {
+  animation: popEntrance 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+@keyframes popEntrance {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Rank Pop Scaling Animations for Live Leaderboard Podiums */
+.rank-pop-1 {
+  animation: popEntrance 0.5s ease both;
+}
+.rank-pop-2 {
+  animation: popEntrance 0.5s ease 0.15s both;
+}
+.rank-pop-3 {
+  animation: popEntrance 0.5s ease 0.3s both;
+}
+
+.animated-row {
+  animation: slideInRow 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) both;
+}
+
+@keyframes slideInRow {
+  0% {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Host Panel Question Display Style Card */
+.host-question-card {
+  padding: 2rem;
+  background: #ffffff;
+  border: 3px solid #000000;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+#host-response-tracker {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary-pink);
+  margin-bottom: 1rem;
+}
+
+#host-countdown-text {
+  font-weight: 800;
+  font-size: 1.3rem;
+  margin-top: 0.75rem;
+  color: #333;
+}
+
+/* Winner Confetti Particles CSS Configuration Structure */
+.confetti-particle {
+  position: fixed;
+  top: -10px;
+  width: 10px;
+  height: 25px;
+  border-radius: 2px;
+  z-index: 9999;
+  pointer-events: none;
+  animation: fallAnimation 4s linear infinite;
+}
+
+@keyframes fallAnimation {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    top: -10px;
+  }
+  100% {
+    transform: translateY(105vh) rotate(720deg);
+  }
+}
+
+/* Phase 2: Professional Mentimeter Timer Styles */
+.timer-container-professional {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.digital-countdown-clock {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--primary-pink);
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
+  margin: 0.5rem 0;
+  font-variant-numeric: tabular-nums;
+  transition:
+    color 0.3s ease,
+    transform 0.2s ease;
+}
+
+/* Pulse animation when timer runs low */
+.timer-danger-pulse {
+  color: var(--incorrect-red) !important;
+  animation: urgentPulse 0.5s ease infinite alternate;
+}
+
+@keyframes urgentPulse {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.15);
+  }
+}
+
+.speed-bonus-indicator {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--success-green);
+  background: rgba(46, 204, 113, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+/* Phase 3 Design Framework Variables */
+:root {
+  --bg-color: #ffd93d;
+  --primary-pink: #ff006e;
+  --shadow-pink: #ff80b9;
+  --white-color: #ffffff;
+  --text-color: #555;
+  --panel-bg: #ffffff;
+  --border-color: #ddd;
+  --pill-bg: #f4f4f4;
+}
+
+/* Dark Mode CSS Override Strategy Mapping */
+body.dark-theme {
+  --bg-color: #1a1a1a;
+  --primary-pink: #ff006e;
+  --shadow-pink: #3d001a;
+  --white-color: #2a2a2a;
+  --panel-bg: #222222;
+  --text-color: #f0f0f0;
+  --border-color: #444;
+  --pill-bg: #333;
+}
+
+body.dark-theme .form-container,
+body.dark-theme .leaderboard-container,
+body.dark-theme .host-question-card {
+  background: var(--panel-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-theme form input,
+body.dark-theme textarea,
+body.dark-theme #nav-dropdown {
+  background: #333;
+  color: #fff;
+  border-color: var(--border-color);
+}
+
+body.dark-theme .lobby-player-pill {
+  background: #333 !important;
+  color: #fff !important;
+  border-color: #555 !important;
+}
+
+body.dark-theme .created-quiz-item,
+body.dark-theme .joined-quiz-item,
+body.dark-theme .report-item {
+  background: #2d2d2d;
+  color: #fff;
+}
+
+/* Mobile Responsive Adaptive Media Breakpoints */
+@media (max-width: 600px) {
+  .logo {
+    font-size: 2.2rem;
+  }
+  .form-container {
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+  }
+  #main-content {
+    padding-top: 4.5rem;
+  }
+  .leaderboard-avatar-box {
+    width: 65px !important;
+    height: 65px !important;
+  }
+  .leaderboard-place.place-1 .leaderboard-avatar-box {
+    width: 80px !important;
+    height: 80px !important;
+  }
+  .play-option-btn {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+  .quiz-editor-main {
+    padding: 1rem;
+  }
+}
+
+/* Theme Toggle Slider Component Styles */
+.theme-switch-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.theme-switch-btn {
+  background: var(--white-color);
+  border: 2px solid var(--border-color);
+  font-size: 1.2rem;
+  padding: 0.4rem;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
