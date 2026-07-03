@@ -11,6 +11,7 @@
     <div class="theme-switch-container">
       <button id="global-theme-toggle-btn" class="theme-switch-btn">🌙</button>
     </div>
+
     <div id="auth-page-container">
       <div class="page-container">
         <h1 class="logo">pulse rush</h1>
@@ -220,6 +221,7 @@
                   id="play-question-image"
                   class="image-preview"
                   style="display: none"
+                  alt="Question"
                 />
                 <div id="play-quiz-options"></div>
                 <div
@@ -333,12 +335,10 @@
           </div>
         </div>
 
-        <!-- Upgraded Profiles Panel (Teacher & Student Dashboards) -->
         <div id="profile-view" class="content-view">
           <div class="page-container" style="max-width: 500px">
             <h1 class="logo">pulse rush</h1>
             <div class="form-container">
-              <!-- Profile Identity Header Section -->
               <div class="profile-header">
                 <div class="profile-avatar-container">
                   <img
@@ -368,7 +368,6 @@
                 </p>
               </div>
 
-              <!-- Navigation Tabs for Dashboard Segregation -->
               <div class="tabs profile-tabs">
                 <button class="tab-link active" id="details-tab-btn">
                   Student Dashboard
@@ -378,7 +377,6 @@
                 </button>
               </div>
 
-              <!-- Panel 1: Student View Dashboard Pane -->
               <div
                 id="details-content"
                 class="tab-content active profile-details"
@@ -403,7 +401,6 @@
                     margin: 1rem 0;
                   "
                 />
-
                 <h3
                   style="
                     margin: 0 0 1rem 0;
@@ -437,12 +434,9 @@
                     margin: 1rem 0;
                   "
                 />
-
-                <!-- History Feed for Student Responses Evaluation -->
                 <div id="joined-games-list"></div>
               </div>
 
-              <!-- Panel 2: Teacher View Dashboard Pane -->
               <div id="about-content" class="tab-content profile-details">
                 <p
                   style="
@@ -465,8 +459,6 @@
                     margin: 1rem 0;
                   "
                 />
-
-                <!-- Dynamic Historical Ledger Cards Container -->
                 <div id="created-games-list"></div>
               </div>
             </div>
@@ -490,6 +482,7 @@
             <div class="create-quiz-header">
               <h1 class="logo">pulse rush</h1>
             </div>
+
             <div class="quiz-editor-layout">
               <div class="quiz-editor-sidebar">
                 <button class="btn" id="change-bg-btn">
@@ -562,34 +555,8 @@
                   style="display: none"
                 />
               </div>
-             <div class="quiz-editor-main form-container">
-  
-  <div class="question-meta-row">
-    <div class="meta-item">
-      <label>Q1</label> 
-    </div>
-    <div class="meta-item">
-      <label for="timer-input">Timer (sec):</label>
-      <input type="number" id="timer-input" value="20">
-    </div>
-    <div class="meta-item">
-      <label for="points-input">Max Points:</label>
-      <input type="number" id="points-input" value="1000">
-    </div>
-  </div>
 
-  <div class="question-card-input input-with-icon">
-    <input type="text" id="question-input" placeholder="Enter Question">
-    <button type="button" class="add-image-button" data-target="question">
-      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3C/svg%3E" alt="Add">
-    </button>
-  </div>
-
-  <div id="import-message" class="message-label" style="min-height: 1.2rem; margin-bottom: 1rem; font-weight: 600;"></div>
-  <img src="" class="image-preview" id="question-image-preview" style="display: none;">
-
-</div>
-
+              <div class="quiz-editor-main form-container">
                 <div class="question-meta-row">
                   <div class="meta-item question-number">Q1</div>
                   <div class="meta-item">
@@ -608,7 +575,11 @@
                     id="question-input"
                     placeholder="Enter Question"
                   />
-                  <button class="add-image-button" data-target="question">
+                  <button
+                    type="button"
+                    class="add-image-button"
+                    data-target="question"
+                  >
                     <img
                       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3C/svg%3E"
                       alt="Add"
@@ -630,6 +601,7 @@
                   class="image-preview"
                   id="question-image-preview"
                   style="display: none"
+                  alt="Preview"
                 />
 
                 <div class="create-quiz-actions">
@@ -756,6 +728,7 @@
 
       <div id="add-image-modal" class="modal-overlay">
         <div class="modal-box form-container">
+          <h3>Add Image</h3>
           <div class="image-source-options">
             <label>Paste Image URL:</label>
             <input
@@ -763,55 +736,56 @@
               id="image-url-input"
               placeholder="https://example.com/image.png"
             />
-
             <p>— OR —</p>
-
-            <label for="local-file-input" class="custom-file-upload">
-              📁 Choose from Desktop
-            </label>
+            <label for="local-file-input" class="custom-file-upload"
+              >📁 Choose from Desktop</label
+            >
             <input
               type="file"
               id="local-file-input"
               accept="image/*"
               style="display: none"
             />
-            <span id="file-name-display">No file chosen</span>
+            <span
+              id="file-name-display"
+              style="display: block; margin: 0.5rem 0 1rem 0"
+              >No file chosen</span
+            >
           </div>
-          <h3>Add Image URL</h3>
-          <input
-            type="text"
-            id="image-url-input"
-            placeholder="https://example.com/image.png"
-          /><button id="save-image-btn" class="btn">Add Image</button
-          ><button id="cancel-image-btn" class="btn" style="background: #777">
+          <button id="save-image-btn" class="btn">Add Image</button>
+          <button id="cancel-image-btn" class="btn" style="background: #777">
             Cancel
           </button>
         </div>
       </div>
+
       <div id="change-background-modal" class="modal-overlay">
         <div class="modal-box form-container">
           <h3>Change Background</h3>
           <div class="color-input-container">
-            <label for="bg-color-input">Choose Color:</label
-            ><input type="color" id="bg-color-input" value="#FFD93D" />
+            <label for="bg-color-input">Choose Color:</label>
+            <input type="color" id="bg-color-input" value="#FFD93D" />
           </div>
-          <button id="set-color-btn" class="btn">Set Color</button
-          ><button id="reset-color-btn" class="btn">Reset Color</button>
+          <button id="set-color-btn" class="btn">Set Color</button>
+          <button id="reset-color-btn" class="btn">Reset Color</button>
           <hr style="margin: 1.5rem 0" />
           <p><strong>OR</strong></p>
           <input
             type="text"
             id="bg-image-url-input"
             placeholder="Paste Image URL..."
-          /><button id="set-bg-image-btn" class="btn">
-            Set Background Image</button
-          ><button id="clear-bg-image-btn" class="btn" style="background: #777">
+          />
+          <button id="set-bg-image-btn" class="btn">
+            Set Background Image
+          </button>
+          <button id="clear-bg-image-btn" class="btn" style="background: #777">
             Clear Background Image
           </button>
           <hr style="margin: 1.5rem 0" />
           <button id="done-bg-btn" class="btn">Done</button>
         </div>
       </div>
+
       <div id="add-sticker-modal" class="modal-overlay">
         <div class="modal-box form-container">
           <h3>Select a Sticker</h3>
