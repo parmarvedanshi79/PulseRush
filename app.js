@@ -98,16 +98,16 @@ function initThemeManager() {
   const savedTheme = localStorage.getItem("pulse-rush-theme");
   if (savedTheme === "dark") {
     document.body.classList.add("dark-theme");
-    if ($("global-theme-toggle-btn"))
-      $("global-theme-toggle-btn").textContent = "☀️";
+    if ($("#global-theme-toggle-btn"))
+      $("#global-theme-toggle-btn").textContent = "☀️";
     appState.isDarkTheme = true;
   }
 
-  if ($("global-theme-toggle-btn")) {
-    $("global-theme-toggle-btn").addEventListener("click", () => {
+  if ($("#global-theme-toggle-btn")) {
+    $("#global-theme-toggle-btn").addEventListener("click", () => {
       document.body.classList.toggle("dark-theme");
       const darkActive = document.body.classList.contains("dark-theme");
-      $("global-theme-toggle-btn").textContent = darkActive ? "☀️" : "🌙";
+      $("#global-theme-toggle-btn").textContent = darkActive ? "☀️" : "🌙";
       localStorage.setItem("pulse-rush-theme", darkActive ? "dark" : "light");
       appState.isDarkTheme = darkActive;
     });
