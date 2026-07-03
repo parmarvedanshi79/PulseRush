@@ -1,0 +1,1606 @@
+<!-- VERSION 48: Fixed ALL BUGS (import typo, image crop, feedback rules) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulse Rush - App</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+:root{--bg-color:#FFD93D;--primary-pink:#ff006e;--shadow-pink:#ff80b9;--white-color:#ffffff;--text-color:#555;--border-color:#ddd;--success-green:#2ecc71;--incorrect-red:#e74c3c;--leaderboard-bg:#FFD93D;--leaderboard-card-bg:#fff;--leaderboard-text:#333;--leaderboard-score-text:#ff006e;--leaderboard-top1-border:#FFD700;--leaderboard-top2-border:#C0C0C0;--leaderboard-top3-border:#CD7F32}
+body{font-family:'Poppins',sans-serif;background-color:var(--bg-color);margin:0;color:var(--text-color);transition:background-color .3s,background-image .3s;background-size:cover;background-position:center}
+#auth-page-container{display:flex;justify-content:center;align-items:center;min-height:100vh;padding:1rem}
+.page-container{width:100%;max-width:450px}
+.form-container{background:var(--white-color);padding:2rem 2.5rem;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.1);width:100%;box-sizing:border-box;text-align:center}
+.logo{font-size:2.8rem;font-weight:800;color:var(--primary-pink);text-shadow:3px 3px var(--shadow-pink);text-align:center;margin-bottom:1.5rem;letter-spacing:1px;line-height:1.1}
+.tabs{display:flex;border-bottom:2px solid var(--border-color);margin-bottom:1.5rem}
+.tab-link{flex:1;padding:.8rem;border:none;background:none;cursor:pointer;font-size:1rem;font-weight:600;color:var(--text-color);transition:color .3s;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab-link.active{color:var(--primary-pink);border-bottom-color:var(--primary-pink)}
+.message-label{min-height:1.2rem;margin-bottom:1rem;font-weight:600;font-size:.9rem}
+.tab-content{display:none}
+.tab-content.active{display:block}
+#forgot-password-view{display:none}
+form input{width:100%;padding:.8rem 1rem;margin-bottom:1.2rem;border:2px solid var(--border-color);border-radius:8px;box-sizing:border-box;font-family:'Poppins',sans-serif;font-size:1rem}
+textarea{width:100%;padding:.8rem 1rem;margin-bottom:1rem;border:2px solid var(--border-color);border-radius:8px;box-sizing:border-box;font-family:'Poppins',sans-serif;font-size:1rem;resize:vertical;min-height:100px}
+.btn{width:100%;padding:.9rem;border:none;border-radius:8px;background:var(--primary-pink);color:var(--white-color);font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .2s ease;margin-top:.5rem}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 15px rgba(255,0,110,0.4)}
+.forgot-password,.back-link{display:block;margin-top:1rem;color:var(--primary-pink);text-decoration:none;font-weight:600;font-size:.9rem;cursor:pointer}
+#app-page-container{display:none;width:100%;position:relative}
+#main-content{padding:1rem;padding-top:5rem;box-sizing:border-box;position:relative;z-index:10}
+#main-content .page-container{margin:0 auto;max-width:900px}
+.content-view{display:none;width:100%}
+.content-view.active{display:block}
+#player-waiting-lobby.active{display:flex}
+#hamburger-btn{position:fixed;top:20px;left:20px;z-index:1001;width:60px;height:60px;border-radius:50%;background-color:var(--primary-pink);border:none;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+#hamburger-btn span{display:block;width:30px;height:3px;background-color:var(--white-color);margin:3px 0;border-radius:3px}
+#nav-dropdown{position:fixed;top:90px;left:20px;z-index:1000;background:var(--white-color);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.15);padding:1rem;width:200px;opacity:0;visibility:hidden;transition:all .3s ease}
+#nav-dropdown.open{transform:translateY(0);opacity:1;visibility:visible}
+#nav-dropdown ul{list-style:none;padding:0;margin:0}
+#nav-dropdown li button{width:100%;background:none;border:none;padding:1rem;font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:600;color:var(--text-color);text-align:left;border-radius:8px;cursor:pointer;transition:background-color .2s}
+#nav-dropdown li button:hover{background-color:#f0f0f0}
+.profile-header{text-align:center;margin-bottom:2rem}
+.profile-avatar-container{position:relative;width:100px;height:100px;margin:0 auto 1rem}
+.profile-avatar{width:100%;height:100%;border-radius:50%;background-color:var(--primary-pink);color:var(--white-color);font-size:3rem;font-weight:700;display:flex;align-items:center;justify-content:center;object-fit:cover}
+#edit-avatar-btn{position:absolute;bottom:0;right:0;width:32px;height:32px;border-radius:50%;background:#333;color:white;border:2px solid white;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.profile-name{font-weight:700;font-size:1.5rem;margin:0}
+.profile-username{font-weight:600;margin:.25rem 0 0 0;color:#777}
+#name-display-wrapper{display:flex;justify-content:center;align-items:center;gap:.5rem}
+#edit-name-btn{background:none;border:none;cursor:pointer;font-size:1rem;color:#777}
+#name-edit-wrapper{display:none}
+#save-name-btn{font-size:.9rem;padding:.5rem;margin-top:0}
+.avatar-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin:2rem 0}
+.avatar-option{width:100%;aspect-ratio:1 / 1;border-radius:16px;background:#f0f0f0;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.1);transition:all .2s ease;padding:0}
+.avatar-option:hover{transform:translateY(-5px);box-shadow:0 8px 20px rgba(0,0,0,0.15)}
+.avatar-option img{width:100%;height:100%;border-radius:16px;object-fit:cover}
+.created-quiz-item,.joined-quiz-item{display:flex;justify-content:space-between;align-items:center;background:#f9f9f9;padding:.75rem;border-radius:8px;margin-bottom:.5rem}
+.created-quiz-item span,.joined-quiz-item span{font-weight:600;font-size:.9rem;text-align:left;word-break:break-all}
+.btn-small{padding:.4rem .8rem;font-size:.9rem;font-weight:600;margin-top:0;width:auto}
+.joined-quiz-item{cursor:pointer;transition:background-color .2s; background: #f9f9f9; color: var(--text-color); font-weight: 600; justify-content: center;}
+.joined-quiz-item:hover{background-color:#eee; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
+.home-button{background-color:#333;color:white;font-weight:600;margin-top:1rem}
+.home-button:hover{background-color:#555;box-shadow:0 5px 15px rgba(0,0,0,0.2)}
+#join-quiz-view .page-container{max-width:450px}
+#join-error-label{color:var(--incorrect-red);font-weight:600}
+#sticker-canvas{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none;z-index:100}
+.placed-sticker{position:absolute;font-size:3rem;cursor:move;user-select:none;pointer-events:auto}
+#template-choice-view .page-container{max-width:450px}
+#template-choice-view .btn{background-color:var(--primary-pink)}
+#template-choice-view .template-toggle-box{background:var(--white-color);border-radius:12px;display:flex;padding:.5rem;margin:1.5rem 0;box-shadow:0 4px 15px rgba(0,0,0,0.05)}
+#template-choice-view .template-toggle-btn{flex:1;background:none;border:none;padding:1rem;font-size:1rem;font-weight:700;color:var(--text-color);border-radius:8px;cursor:pointer;transition:all .2s ease}
+#template-choice-view .template-toggle-btn.active{background:var(--primary-pink);color:var(--white-color);box-shadow:0 4px 15px rgba(255,0,110,0.3)}
+#create-quiz-view .logo{position:absolute;top:-6rem;left:50%;transform:translateX(-50%)}
+.create-quiz-header{text-align:center;position:relative}
+#question-counter-display{position:fixed;top:20px;right:20px;background:var(--primary-pink);color:white;padding:.5rem 1rem;border-radius:20px;font-weight:700;z-index:1001}
+.quiz-editor-layout{display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-start;justify-content:center;margin-top:4rem}
+.quiz-editor-sidebar{width:220px;flex-shrink:0}
+@media (max-width:768px){.quiz-editor-sidebar{width:100%;order:2}.quiz-editor-main{order:1}}
+.quiz-editor-sidebar .btn{margin-top:0;margin-bottom:.8rem;background-color:var(--primary-pink);display:flex;align-items:center;justify-content:center;gap:.5rem;font-size:.9rem;padding:.6rem 1rem;width:100%;box-sizing:border-box}
+.quiz-editor-sidebar .btn svg{width:20px;height:20px}
+#create-quiz-view.template-mode-default #change-bg-btn,#create-quiz-view.template-mode-default #add-sticker-btn{display:none}
+.quiz-editor-main{flex:1;max-width:600px;min-width:300px;border:2px solid var(--primary-pink);box-shadow:0 8px 25px rgba(255,0,110,0.2);padding:2rem}
+.quiz-editor-main .input-with-icon input[type=text]{padding:1rem 1.1rem;font-size:1.05rem}
+.input-with-icon{position:relative;width:100%}
+.add-image-button{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;background:none;border:none;padding:0;opacity:.6}
+/* ---*** MODIFIED: Changed object-fit to contain and made larger ***--- */
+.image-preview{width:100%;max-width:300px;height:180px;object-fit:contain;background-color:#f0f0f0;border-radius:8px;margin-top:.5rem;display:block;margin-left:auto;margin-right:auto}
+#play-quiz-view .image-preview{margin-bottom:1.5rem}
+.question-card-input{display:flex;align-items:center;margin-bottom:1rem}
+.question-card-input label{font-weight:700;margin-right:1rem;background:var(--primary-pink);color:white;padding:.5rem .8rem;border-radius:8px;font-size:1.1rem}
+.question-card-input .input-with-icon{flex:1}
+.correct-answer-header{font-weight:700;font-size:1.2rem;text-align:left;margin-top:2rem;margin-bottom:.5rem}
+#create-quiz-view p{text-align:left;margin-top:0;margin-bottom:1rem}
+.option-input{display:flex;align-items:center;margin-bottom:.5rem;flex-wrap:nowrap;gap:.75rem}
+.option-input .input-with-icon{flex:1;min-width:200px}
+.correct-answer-toggle{flex-shrink:0;width:28px;height:28px;border:2px solid var(--border-color);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;line-height:1;transition:all .2s ease;background-color:#f0f0f0}
+.correct-answer-toggle.selected{background-color:var(--primary-pink);border-color:var(--primary-pink);color:white}
+.create-quiz-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.create-quiz-actions .btn{font-size:.9rem;padding:.6rem 1rem;width:auto;flex-grow:1;margin-top:0}
+#add-option-btn.icon-btn{width:40px;height:40px;border-radius:50%;font-size:24px;font-weight:700;background-color:var(--primary-pink);color:white;display:flex;justify-content:center;align-items:center;padding:0;margin:1rem 0;margin-top:.5rem}
+.finalize-list{list-style:none;padding:0;text-align:left}
+.finalize-list li{background:#f9f9f9;padding:1rem;border-radius:8px;margin-bottom:.5rem;font-weight:600}
+.pin-box{border:3px solid var(--primary-pink);border-radius:16px;padding:2rem;margin:2rem 0}
+.pin-box h2{font-size:3rem;font-weight:800;color:var(--primary-pink);margin:0}
+.copy-btn{background:var(--success-green)!important}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;display:none;justify-content:center;align-items:center}
+.modal-box{background:white;padding:2rem;border-radius:16px;width:90%;max-width:400px;overflow:visible}
+.modal-box .btn{margin-top:.5rem}
+.color-input-container{display:flex;align-items:center;gap:1rem}
+.sticker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1.5rem 0}
+.sticker-option{background:none;border:none;font-size:2rem;cursor:pointer;transition:transform .2s}
+.sticker-option:hover{transform:scale(1.2)}
+#player-waiting-lobby{display:none;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:1rem;box-sizing:border-box;height:100vh}
+#wait-lobby-avatar{width:120px;height:120px;border-radius:50%;object-fit:cover;margin-bottom:1rem;box-shadow:0 5px 20px rgba(0,0,0,0.1)}
+#wait-lobby-username{font-size:1.8rem;font-weight:700;color:#333;margin:0}
+#wait-lobby-subtitle{font-size:1.1rem;font-weight:600;color:#555;margin:.25rem 0 0 0}
+#wait-lobby-message{font-size:1.3rem;font-weight:700;color:var(--primary-pink);margin-top:2.5rem}
+#play-quiz-view .question-text{font-size:1.5rem;font-weight:600;margin-bottom:2rem;text-align:center}
+#play-quiz-options{display:grid;grid-template-columns:1fr;gap:1rem}
+@media (min-width:600px){#play-quiz-options{grid-template-columns:1fr 1fr}}
+.play-option-btn{background-color:#eee;color:var(--text-color);font-weight:600;text-align:left;padding:1.5rem}
+.play-option-btn.selected{background-color:var(--primary-pink);color:white;box-shadow:0 4px 15px rgba(255,0,110,0.4)}
+.play-option-btn.correct{background-color:var(--success-green);color:white}
+.play-option-btn.incorrect{background-color:var(--incorrect-red);color:white}
+.play-option-btn:disabled{opacity:.7}
+#quiz-score-display{font-size:2.5rem;font-weight:800;color:var(--primary-pink)}
+.timer-bar-container{width:100%;background-color:#eee;border-radius:10px;height:10px;margin-bottom:1.5rem;overflow:hidden}
+.timer-bar{height:100%;background-color:var(--primary-pink);width:100%;transition:width .2s linear}
+.leaderboard-container{width:100%;max-width:500px;margin:0 auto;background:var(--leaderboard-card-bg);border-radius:16px;padding:1.5rem;box-shadow:0 10px 30px rgba(0,0,0,0.1);box-sizing:border-box;border:3px solid #000}
+.leaderboard-container .logo{color:var(--primary-pink);text-shadow:3px 3px var(--shadow-pink)}
+.leaderboard-container h2{font-size:1.8rem;font-weight:800;color:var(--leaderboard-text);margin:0 0 1.5rem 0;text-transform:uppercase}
+.leaderboard-top3{display:flex;justify-content:center;align-items:flex-end;gap:.5rem;margin-bottom:1.5rem;border-bottom:2px solid var(--border-color);padding-bottom:1.5rem}
+.leaderboard-place{display:flex;flex-direction:column;align-items:center;width:30%}
+.leaderboard-place .leaderboard-name{font-weight:700;font-size:.9rem;color:var(--leaderboard-text);word-break:break-word}
+.leaderboard-place .leaderboard-score{font-weight:800;font-size:1.1rem;color:var(--leaderboard-score-text)}
+.leaderboard-avatar-box{position:relative;width:80px;height:80px;margin-bottom:.5rem}
+.leaderboard-avatar{width:100%;height:100%;border-radius:50%;object-fit:cover;border:4px solid var(--border-color)}
+.leaderboard-rank-badge{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:var(--white-color);color:var(--leaderboard-text);font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:center;border:3px solid var(--border-color)}
+.leaderboard-rank-badge.crown{font-size:1.5rem;border:none;background:transparent;bottom:-10px}
+.leaderboard-place.place-1{order:2}
+.leaderboard-place.place-1 .leaderboard-avatar-box{width:100px;height:100px}
+.leaderboard-place.place-1 .leaderboard-avatar{border-color:var(--leaderboard-top1-border)}
+.leaderboard-place.place-2{order:1}
+.leaderboard-place.place-2 .leaderboard-avatar{border-color:var(--leaderboard-top2-border)}
+.leaderboard-place.place-2 .leaderboard-rank-badge{background-color:var(--leaderboard-top2-border)}
+.leaderboard-place.place-3{order:3}
+.leaderboard-place.place-3 .leaderboard-avatar{border-color:var(--leaderboard-top3-border)}
+.leaderboard-place.place-3 .leaderboard-rank-badge{background-color:var(--leaderboard-top3-border)}
+.leaderboard-rest{list-style:none;padding:0;margin:0;max-height:250px;overflow-y:auto}
+.leaderboard-item-rest{display:flex;align-items:center;padding:.75rem;border-radius:8px;margin-bottom:.5rem;background:#f4f4f4}
+.leaderboard-item-rest .leaderboard-rank{font-size:1rem;font-weight:800;color:var(--text-color);margin-right:1rem}
+.leaderboard-item-rest .leaderboard-avatar{width:35px;height:35px;border-radius:50%;object-fit:cover;margin-right:1rem}
+.leaderboard-item-rest .leaderboard-name{font-weight:600;font-size:1rem;flex-grow:1;color:var(--leaderboard-text)}
+.leaderboard-item-rest .leaderboard-score{font-weight:700;font-size:1.1rem;color:var(--leaderboard-score-text)}
+#leaderboard-list .leaderboard-item{display:none}
+#final-leaderboard-list{list-style:none;padding:0;margin:0}
+.button-group{display:flex;justify-content:space-between;gap:1rem;margin-top:.5rem}
+.button-group .btn{width:100%;flex:1;margin-top:0}
+.share-btn{background:#25D366!important}
+.share-btn:hover:not(:disabled){background:#128C7E!important;box-shadow:0 5px 15px rgba(37,211,102,0.4)}
+.host-q-display{display:none}
+body.is-host #host-question-display{display:block;background-color:var(--primary-pink);color:var(--white-color);padding:.5rem 1rem;border-radius:8px;font-weight:700;margin-bottom:1rem;text-align:center}
+.player-q-display{display:none}
+body:not(.is-host) #player-question-display{display:block;background-color:var(--primary-pink);color:var(--white-color);padding:.5rem 1rem;border-radius:8px;font-weight:700;margin-bottom:1rem;text-align:center}
+#player-answer-screen{display:none;text-align:center}
+.answer-icon{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:1rem auto;font-size:3rem;font-weight:800;color:white;border:5px solid white;box-shadow:0 0 10px rgba(0,0,0,0.1)}
+.answer-icon.correct{background-color:var(--success-green)}
+.answer-icon.incorrect{background-color:var(--incorrect-red)}
+#player-answer-title{font-weight:800;font-size:2rem;margin:1rem 0}
+#player-answer-score{font-size:2.5rem;font-weight:800;color:var(--text-color);margin:0}
+#player-answer-points{font-size:1.2rem;font-weight:700;margin:0}
+#player-answer-rank-info{font-size:1rem;font-weight:600;margin:1rem 0}
+#player-answer-correct-text{font-size:1rem;font-weight:600;margin:1rem 0}
+#host-report-selection-view .page-container, #game-report-view .page-container {max-width: 600px;}
+#host-report-participants { list-style: none; padding: 0; }
+#host-report-participants .btn { margin-bottom: 0.5rem; background: #555; }
+.report-item { background: #f9f9f9; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; text-align: left; }
+.report-item h4 { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
+.report-item .report-option { display: block; padding: 0.5rem; border-radius: 4px; margin-top: 0.25rem; }
+.report-item .report-option.correct { background: var(--success-green); color: white; }
+.report-item .report-option.submitted { background: var(--incorrect-red); color: white; }
+.report-item .report-option.submitted.correct { background: var(--success-green); }
+.star-rating { display: flex; justify-content: center; gap: 0.5rem; font-size: 2.5rem; margin: 1.5rem 0; }
+.star { cursor: pointer; color: var(--border-color); transition: color 0.2s; }
+.star:hover, .star.selected { color: #FFD700; }
+.podium-stats { display: flex; justify-content: space-around; text-align: center; margin: 1.5rem 0; }
+.podium-item { flex-basis: 30%; }
+.podium-icon { font-size: 2.5rem; display: block; line-height: 1; }
+.podium-count { font-size: 1.5rem; font-weight: 700; display: block; }
+.podium-label { font-size: 0.9rem; font-weight: 600; color: #777; }
+    </style>
+</head>
+<body>
+    
+    <div id="auth-page-container">
+        <div class="page-container">
+            <h1 class="logo">pulse rush</h1>
+            <div class="form-container">
+                <div id="auth-views">
+                    <div class="tabs"><button class="tab-link active" id="login-tab-btn">Log in</button><button class="tab-link" id="signup-tab-btn">Sign up</button></div>
+                    <div id="messageLabel" class="message-label"></div>
+                    <div id="login" class="tab-content active"><form id="login-form" novalidate><input type="email" id="login-email" placeholder="E-mail" required><input type="password" id="login-password" placeholder="Password" required><button type="submit" class="btn">Log in</button><a class="forgot-password" id="forgot-password-link">Forgot password?</a></form></div>
+                    <div id="signup" class="tab-content"><form id="signup-form" novalidate><input type="text" id="signup-name" placeholder="Full Name" required><input type="email" id="signup-email" placeholder="E-mail" required><input type="text" id="signup-username" placeholder="Username" required><input type="password" id="signup-password" placeholder="Password" required minlength="6"><button type="submit" class="btn">Sign-up</button></form></div>
+                </div>
+                 <div id="forgot-password-view">
+                    <h3 style="font-weight: 600;">Reset Password</h3><div id="resetMessageLabel" class="message-label"></div>
+                    <form id="forgot-password-form" novalidate><input type="email" id="reset-email" placeholder="Enter your email" required><button type="submit" class="btn">Send Reset Link</button><a class="back-link" id="back-to-login-link">Back to Login</a></form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-page-container">
+        <div id="sticker-canvas"></div>
+        <button id="hamburger-btn"><span></span><span></span><span></span></button>
+        <div id="nav-dropdown"><ul><li><button id="home-nav-btn">Home</button></li><li><button id="profile-nav-btn">Profile</button></li><li><button id="feedback-nav-btn">Feedback</button></li><li><button id="logout-btn">Logout</button></li></ul></div>
+        
+        <main id="main-content">
+            <div id="home-view" class="content-view"><div class="page-container" style="max-width: 450px;"><h1 class="logo">pulse rush</h1><div class="form-container"><button class="btn home-button" id="create-game-btn">Create Game</button><button class="btn home-button" id="join-game-btn">Join Game</button></div></div></div>
+            
+            <div id="template-choice-view" class="content-view">
+                <div class="page-container">
+                    <h1 class="logo">pulse rush</h1>
+                    <div class="form-container">
+                        <button class="btn">Choose a Template</button>
+                        <div class="template-toggle-box">
+                            <button id="default-template-btn" class="template-toggle-btn active">Default</button>
+                            <button id="custom-template-btn" class="template-toggle-btn">Custom</button>
+                        </div>
+                        <button class="btn" id="confirm-template-btn">CONFIRM TEMPLATE</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="join-quiz-view" class="content-view">
+                <div class="page-container" style="max-width: 450px;">
+                    <h1 class="logo">pulse rush</h1>
+                    <div class="form-container">
+                        <h2>Join Quiz</h2>
+                        <p>Enter the game PIN to join.</p>
+                        <form id="join-quiz-form" novalidate>
+                            <input type="text" id="game-pin-input" placeholder="Game PIN" required>
+                            <div id="join-error-label" class="message-label" style="color: var(--incorrect-red);"></div>
+                            <button type="submit" class="btn">Join Game</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="game-lobby-view" class="content-view">
+                <div class="page-container" style="max-width: 450px;">
+                    <h1 class="logo">pulse rush</h1>
+                    <div class="form-container">
+                        <h2>Game Lobby</h2>
+                        <p>Share this PIN with others:</p>
+                        <div class="pin-box" style="margin: 1rem 0;"><h2 id="lobby-pin-display"></h2></div>
+                        <div class="button-group">
+                            <button class="btn copy-btn" id="lobby-copy-pin-btn">Copy PIN</button>
+                            <button class="btn share-btn" id="lobby-share-btn">Share</button>
+                        </div>
+                        <h3 style="margin-top: 2rem;">Players Joined:</h3>
+                        <ul id="lobby-players-list" class="finalize-list"><li>Waiting for players...</li></ul>
+                        <button id="start-game-btn" class="btn" style="background: var(--success-green); margin-top: 1rem;">Start Game</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="play-quiz-view" class="content-view">
+                <div class="page-container" style="max-width: 500px;"> 
+                    <div class="form-container">
+                        <div id="play-area">
+                            <h1 class="logo">pulse rush</h1>
+                            <h3 id="player-question-display" class="player-q-display"></h3>
+                            <div class="timer-bar-container"><div class="timer-bar" id="question-timer-bar"></div></div>
+                            <h2 id="play-question-text" class="question-text"></h2>
+                            <img src="" id="play-question-image" class="image-preview" style="display:none;">
+                            <div id="play-quiz-options"></div>
+                            <div id="play-message" class="message-label" style="color: var(--incorrect-red); min-height: 1.2rem; margin-top: 1rem;"></div>
+                            <button id="next-play-btn" class="btn" style="display: none;"></button> 
+                        </div>
+                        
+                         <div id="leaderboard-area" style="display:none;">
+                            <h3 id="host-question-display" class="host-q-display"></h3>
+                            <div class="leaderboard-container">
+                                <h1 class="logo">pulse rush</h1>
+                                <h2>LEADERBOARD</h2>
+                                <div class="leaderboard-top3">
+                                    <div class="leaderboard-place place-2"></div>
+                                    <div class="leaderboard-place place-1"></div>
+                                    <div class="leaderboard-place place-3"></div>
+                                </div>
+                                <ul id="leaderboard-list" class="leaderboard-rest"></ul>
+                            </div>
+                            <button id="host-next-btn" class="btn" style="margin-top: 1rem; display: none;">Next</button>
+                        </div>
+                        
+                        <div id="player-answer-screen" style="display:none; text-align: center;">
+                            <h1 class="logo">pulse rush</h1>
+                            <div id="player-answer-icon" class="answer-icon"></div>
+                            <h2 id="player-answer-title" style="font-weight: 800; font-size: 2rem; margin: 1rem 0;"></h2>
+                            <h1 id="player-answer-score" style="font-size: 2.5rem; font-weight: 800; color: var(--text-color); margin: 0;"></h1>
+                            <p id="player-answer-points" style="font-size: 1.2rem; font-weight: 700; margin: 0;"></p>
+                            <p id="player-answer-rank-info" style="font-size: 1rem; font-weight: 600; margin: 1rem 0;"></p>
+                            <p id="player-answer-correct-text" style="font-size: 1rem; font-weight: 600; margin: 1rem 0;"></p>
+                        </div>
+
+                        <div id="score-area" style="display:none;">
+                            <div class="leaderboard-container">
+                                <h1 class="logo">pulse rush</h1>
+                                <h2>FINAL RESULTS</h2>
+                                <p style="font-size: 1.1rem; font-weight: 600; margin-top: -1rem;">Your final score:</p>
+                                <h1 id="quiz-score-display" style="font-size: 3rem; margin: 0.5rem 0 1.5rem 0; color: var(--primary-pink);"></h1>
+                                <div class="leaderboard-top3" id="final-leaderboard-top3">
+                                    <div class="leaderboard-place place-2"></div>
+                                    <div class="leaderboard-place place-1"></div>
+                                    <div class="leaderboard-place place-3"></div>
+                                </div>
+                                <ul id="final-leaderboard-list" class="leaderboard-rest"></ul>
+                            </div>
+                            <button id="play-again-btn" class="btn" style="max-width: 500px; margin: 1rem auto 0;">Back to Home</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+             <div id="profile-view" class="content-view"><div class="page-container" style="max-width: 450px;"><h1 class="logo">pulse rush</h1><div class="form-container">
+                <div class="profile-header">
+                    <div class="profile-avatar-container">
+                        <img src="" alt="User Avatar" class="profile-avatar" id="profile-avatar-img">
+                        <button id="edit-avatar-btn">✎</button>
+                    </div>
+                    <div id="name-display-wrapper">
+                        <h2 class="profile-name" id="profile-name-display"></h2>
+                        <button id="edit-name-btn">✎</button>
+                    </div>
+                    <div id="name-edit-wrapper">
+                        <input type="text" id="name-edit-input" placeholder="Enter new name">
+                        <button id="save-name-btn" class="btn">Save</button>
+                    </div>
+                    <p class="profile-username" id="profile-username-display"></p>
+                </div>
+                <div class="tabs profile-tabs">
+                    <button class="tab-link active" id="details-tab-btn">Personal Details</button>
+                    <button class="tab-link" id="about-tab-btn">My Quizzes</button>
+                </div>
+                <div id="details-content" class="tab-content active profile-details">
+                    <p>E-mail: <span id="profile-email-display"></span></p>
+                    <hr>
+                    <!-- *** REMOVED "Podium Finishes" h3 and the <hr> after it *** -->
+                    <div class="podium-stats">
+                        <div class="podium-item">
+                            <span class="podium-icon">🥇</span>
+                            <span class="podium-count" id="rank-first-count">0</span>
+                            <span class="podium-label">1st Place</span>
+                        </div>
+                        <div class="podium-item">
+                            <span class="podium-icon">🥈</span>
+                            <span class="podium-count" id="rank-second-count">0</span>
+                            <span class="podium-label">2nd Place</span>
+                        </div>
+                        <div class="podium-item">
+                            <span class="podium-icon">🥉</span>
+                            <span class="podium-count" id="rank-third-count">0</span>
+                            <span class="podium-label">3rd Place</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <h3>Games Joined</h3>
+                    <div id="joined-games-list" style="margin-top: 1rem; text-align: left;"></div>
+                </div>
+                <div id="about-content" class="tab-content profile-details">
+                    <p>Total Quizzes Created: <span id="games-created-count">0</span></p>
+                    <div id="created-games-list" style="margin-top: 1rem; text-align: left;"></div>
+                </div>
+            </div></div></div>
+
+             <div id="avatar-view" class="content-view"><div class="page-container" style="max-width: 450px;"><h1 class="logo">pulse rush</h1><div class="form-container"><h2 id="avatar-title">Choose Your Avatar</h2><div class="avatar-grid" id="avatar-grid"></div><button class="btn" id="back-to-profile-btn">Back</button></div></div></div>
+            
+            <div id="create-quiz-view" class="content-view">
+                <div class="page-container">
+                    <div id="question-counter-display">Questions: 1</div>
+                    <div class="create-quiz-header">
+                        <h1 class="logo">pulse rush</h1>
+                    </div>
+                    <div class="quiz-editor-layout">
+                        <div class="quiz-editor-sidebar">
+                            <button class="btn" id="change-bg-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 12c0-5.25-4.25-9.5-9.5-9.5S2.5 6.75 2.5 12s4.25 9.5 9.5 9.5s9.5-4.25 9.5-9.5z"/><path d="M12 2.5C12 2.5 7.5 6 7.5 12s4.5 9.5 4.5 9.5"/><path d="M2.5 12h19"/></svg>
+                                Change Background
+                            </button>
+                            <button class="btn" id="add-sticker-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 10.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/><path d="M15.5 10.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M16.5 15c-1.42-1.42-3.58-1.42-5 0"/></svg>
+                                Add Sticker
+                            </button>
+                            <button class="btn" id="import-excel-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15h16v4h-16v-4z"/><path d="M4 5h16v4h-16v-4z"/><path d="M12 9v6"/></svg>
+                                Import from Excel
+                            </button>
+                            <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
+                        </div>
+                        <div class="quiz-editor-main form-container">
+                            <div class="question-card-input">
+                                <label for="question-input">Q1</label>
+                                <div class="input-with-icon">
+                                    <input type="text" id="question-input" placeholder="Enter Question">
+                                    <button class="add-image-button" data-target="question"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'%3E%3C/circle%3E%3Cpolyline points='21 15 16 10 5 21'%3E%3C/polyline%3E%3C/svg%3E" alt="Add"></button>
+                                </div>
+                            </div>
+                            <div id="import-message" class="message-label" style="min-height: 1.2rem; margin-bottom: 1rem; font-weight: 600;"></div>
+                            <img src="" class="image-preview" id="question-image-preview" style="display:none;">
+                            
+                            <h3 class="correct-answer-header">Correct Answer</h3>
+                            <p>Select the correct option using the bullet</p>
+
+                            <div id="options-container"></div>
+                            <button class="btn icon-btn" id="add-option-btn">+</button>
+                            
+                            <div class="input-with-icon" style="margin-bottom: 1rem; text-align: left;"><label for="timer-input">Timer (seconds): </label><input type="number" id="timer-input" value="20" min="5" max="120" style="width: 80px;"></div>
+                            
+                            <div class="create-quiz-actions">
+                                <button class="btn" id="prev-question-btn">← Back</button>
+                                <button class="btn" id="next-question-btn">Next →</button>
+                                <button class="btn" id="remove-question-btn">Remove Card</button>
+                            </div>
+                             <div class="create-quiz-actions" style="margin-top: 1rem;">
+                                <button class="btn" id="add-question-btn" style="background: #555;">Add Question</button>
+                                <button class="btn" id="submit-quiz-btn" style="background: var(--success-green);">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <div id="finalize-quiz-view" class="content-view"><div class="page-container" style="max-width: 450px;"><h1 class="logo">pulse rush</h1><div class="form-container">
+                <h2>Review Your Quiz</h2>
+                
+                <input type="text" id="quiz-name-input" placeholder="Enter Quiz Name" required style="margin-bottom: 1rem;">
+                
+                <ul id="finalize-list" class="finalize-list"></ul>
+                <div id="finalize-message" class="message-label" style="color: var(--incorrect-red); min-height: 1.2rem; margin-top: 1rem;"></div>
+                <button class="btn" id="edit-quiz-again-btn">Edit</button>
+                <button class="btn" id="generate-pin-btn" style="background: var(--success-green);">Save & Generate PIN</button>
+            </div></div></div>
+             <div id="pin-view" class="content-view"><div class="page-container" style="max-width: 450px;"><h1 class="logo">pulse rush</h1><div class="form-container"><h2>Quiz Successfully Created!</h2><p>Your unique game PIN is:</p><div class="pin-box"><h2 id="game-pin-display"></h2></div>
+                
+                <div class="button-group">
+                    <button class="btn copy-btn" id="copy-pin-btn">Copy PIN</button>
+                    <button class="btn share-btn" id="share-pin-btn">Share</button>
+                </div>
+                
+                <button class="btn" id="back-to-home-btn" style="margin-top: 1rem;">Back to Home</button>
+            </div></div></div>
+
+            <div id="host-report-selection-view" class="content-view">
+                <div class="page-container" style="max-width: 600px;">
+                    <h1 class="logo">pulse rush</h1>
+                    <div class="form-container">
+                        <h2 id="host-report-title">Game Report</h2>
+                        <p id="host-report-info">Select a participant to view their answers.</p>
+                        <div id="host-report-participants" style="margin: 2rem 0;"></div>
+                        <button class="btn" id="back-to-profile-from-report-btn">Back to Profile</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="game-report-view" class="content-view">
+                <div class="page-container" style="max-width: 600px;">
+                    <h1 class="logo">pulse rush</h1>
+                    <div class="form-container">
+                        <h2 id="game-report-title">Game Report</h2>
+                        <p id="game-report-subtitle" style="font-weight: 600;"></p>
+                        <div id="game-report-items"></div>
+                        <button class="btn" id="back-to-profile-from-game-btn">Back to Profile</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <div id="player-waiting-lobby" class="content-view">
+            <img src="" alt="Avatar" id="wait-lobby-avatar" />
+            <h2 id="wait-lobby-username"></h2>
+            <p id="wait-lobby-subtitle">You're in! See your nickname on screen?</p>
+            <h3 id="wait-lobby-message">Waiting for game to start...</h3>
+        </div>
+
+        <div id="add-image-modal" class="modal-overlay"><div class="modal-box form-container"><h3>Add Image URL</h3><input type="text" id="image-url-input" placeholder="https://example.com/image.png"><button id="save-image-btn" class="btn">Add Image</button><button id="cancel-image-btn" class="btn" style="background: #777;">Cancel</button></div></div>
+        <div id="change-background-modal" class="modal-overlay"><div class="modal-box form-container"><h3>Change Background</h3><div class="color-input-container"><label for="bg-color-input">Choose Color:</label><input type="color" id="bg-color-input" value="#FFD93D"></div><button id="set-color-btn" class="btn">Set Color</button><button id="reset-color-btn" class="btn">Reset Color</button><hr style="margin: 1.5rem 0;"><p><strong>OR</strong></p><input type="text" id="bg-image-url-input" placeholder="Paste Image URL..."><button id="set-bg-image-btn" class="btn">Set Background Image</button><button id="clear-bg-image-btn" class="btn" style="background: #777;">Clear Background Image</button><hr style="margin: 1.5rem 0;"><button id="done-bg-btn" class="btn">Done</button></div></div>
+        <div id="add-sticker-modal" class="modal-overlay"><div class="modal-box form-container"><h3>Select a Sticker</h3><div class="sticker-grid" id="sticker-grid"></div><button id="close-sticker-modal-btn" class="btn" style="background: #777;">Close</button></div></div>
+        
+        <div id="feedback-modal" class="modal-overlay">
+            <div class="modal-box form-container" style="max-width: 400px;">
+                <div id="feedback-form-content">
+                    <h1 class="logo" style="margin-bottom: 0.5rem;">pulse rush</h1>
+                    <h3 style="margin-top: 0; margin-bottom: 1rem;">Rate the app Pulse Rush</h3>
+                    <div class="star-rating" id="feedback-stars">
+                        <span class="star" data-value="1">☆</span>
+                        <span class="star" data-value="2">☆</span>
+                        <span class="star" data-value="3">☆</span>
+                        <span class="star" data-value="4">☆</span>
+                        <span class="star" data-value="5">☆</span>
+                    </div>
+                    <textarea id="feedback-text" placeholder="Write your review..."></textarea>
+                    <div id="feedback-message" class="message-label"></div>
+                    <button id="submit-feedback-btn" class="btn">Submit</button>
+                    <button id="cancel-feedback-btn" class="btn" style="background: #777;">Cancel</button>
+                </div>
+                <div id="feedback-thanks-content" style="display: none;">
+                    <h2>Thank You!</h2>
+                    <p>Your feedback has been submitted.</p>
+                    <button id="close-thanks-btn" class="btn">Close</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script type="module">
+        // --- FIXED: Corrected import paths ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, setDoc, doc, getDoc, updateDoc, arrayUnion, onSnapshot, serverTimestamp, increment, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        let db, auth;
+        const firebaseConfig = {
+          apiKey: "AIzaSyDnFRyh6x3wBf28RGU3zdCT7D56NXL15vw",
+          authDomain: "login-portal-demo.firebaseapp.com",
+          projectId: "login-portal-demo",
+          storageBucket: "login-portal-demo.firebasestorage.app",
+          messagingSenderId: "618860633719",
+          appId: "1:618860633719:web:d7b22157f4b546782b7072",
+          measurementId: "G-BGNGZ63HF0"
+        };
+        const appId = 'default-app-id';
+        let quizQuestions = [], currentQuestionIndex = 0, imageTarget = null, imageTargetIndex = -1;
+        let selectedTemplate = 'default';
+        const avatars = [
+            'https://api.dicebear.com/8.x/adventurer/svg?seed=Mimi',
+            'https://api.dicebear.com/8.x/adventurer/svg?seed=Leo',
+            'https://api.dicebear.com/8.x/adventurer/svg?seed=Cleo',
+            'https://api.dicebear.com/8.x/adventurer/svg?seed=Max',
+            'https://api.dicebear.com/8.x/adventurer/svg?seed=Luna',
+            'https://api.dicebear.com/8.x/adventurer/svg?seed=Rocky'
+        ];
+        const stickers = ['⭐', '❤️', '💡', '❓', '🎯', '🎉', '💯', '✔️'];
+        let currentQuizData = null, currentPlayersList = [], currentQuestionInPlayIndex = 0, currentGamePin = null, currentUserData = null, currentUserId = null;
+        let gameUnsubscribe = null, playerUnsubscribe = null, questionTimerInterval = null;
+        
+        let lastKnownScore = 0;
+        let lastAnswerSubmitted = null;
+        let currentRating = 0;
+
+        const $ = id => document.getElementById(id);
+
+        function shareToWhatsApp(pin) {
+            const text = `Enter this Game PIN to join: ${pin}`;
+            const encodedText = encodeURIComponent(text);
+            const url = `https://wa.me/?text=${encodedText}`;
+            window.open(url, '_blank');
+        }
+
+        if (!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+             const shareButtons = document.querySelectorAll('.share-btn');
+            shareButtons.forEach(btn => btn.style.display = 'none');
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            copyButtons.forEach(btn => {
+                if (btn.parentElement.classList.contains('button-group')) {
+                    btn.style.width = '100%';
+                    btn.style.flex = 'unset';
+                }
+            });
+        }
+
+        function resetBodyBackground() {
+            document.body.style.backgroundColor = 'var(--bg-color)';
+            document.body.style.backgroundImage = 'none';
+            if ($('sticker-canvas')) $('sticker-canvas').innerHTML = '';
+        }
+        function showView(viewName) {
+            ['home-view', 'profile-view', 'avatar-view', 'create-quiz-view', 'finalize-quiz-view', 'pin-view', 'join-quiz-view', 'play-quiz-view', 'game-lobby-view', 'template-choice-view', 'player-waiting-lobby', 'host-report-selection-view', 'game-report-view'].forEach(id => { const el = $(id); if(el) el.classList.remove('active'); });
+            if (viewName !== 'create-quiz-view') resetBodyBackground();
+            
+            const view = $(viewName);
+            
+            if (viewName === 'player-waiting-lobby') {
+                $('main-content').style.display = 'none';
+            } else {
+                $('main-content').style.display = 'block';
+            }
+            if(view) view.classList.add('active'); 
+
+            if (viewName === 'profile-view') populateProfileData();
+            else if (viewName === 'create-quiz-view') { if(quizQuestions.length === 0) startNewQuiz(); else renderCurrentQuestion(); }
+            else if (viewName === 'finalize-quiz-view') renderFinalizeList();
+            else if (viewName === 'avatar-view' && $('avatar-grid').childElementCount === 0) populateAvatarGrid();
+            if($('nav-dropdown')) $('nav-dropdown').classList.remove('open');
+        }
+        function startNewQuiz() { quizQuestions = [{ question: '', imageUrl: null, options: [{text:'', imageUrl: null},{text:'', imageUrl: null}], correctAnswerIndex: 0, timer: 20 }]; currentQuestionIndex = 0; renderCurrentQuestion(); }
+        function renderCurrentQuestion() { const q = quizQuestions[currentQuestionIndex]; $('question-input').value = q.question || ''; $('timer-input').value = q.timer || 20; const qImagePreview = $('question-image-preview'); qImagePreview.src = q.imageUrl || ''; qImagePreview.style.display = q.imageUrl ? 'block' : 'none'; document.querySelector('#create-quiz-view .question-card-input label').textContent = `Q${currentQuestionIndex + 1}`; $('options-container').innerHTML = ''; q.options.forEach((opt, index) => { const optionEl = document.createElement('div'); optionEl.className = 'option-input'; let imgHTML = ''; if(opt.imageUrl) { imgHTML = `<img src="${opt.imageUrl}" class="image-preview">`; } optionEl.innerHTML = `<div class="correct-answer-toggle ${index === q.correctAnswerIndex ? 'selected' : ''}" data-index="${index}"></div><div class="input-with-icon"><input type="text" value="${opt.text || ''}" placeholder="Enter Option ${index + 1}"><button class="add-image-button" data-target="option" data-index="${index}"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'%3E%3C/circle%3E%3Cpolyline points='21 15 16 10 5 21'%3E%3C/polyline%3E%3C/svg%3E" alt="Add"></button></div>${imgHTML}`; $('options-container').appendChild(optionEl); }); updateQuestionCounter(); }
+        function saveCurrentQuestionState() { const q = quizQuestions[currentQuestionIndex]; q.question = $('question-input').value.trim(); q.timer = parseInt($('timer-input').value) || 20; const optionInputs = $('options-container').querySelectorAll('.option-input'); q.options = Array.from(optionInputs).map((optEl, index) => { const text = optEl.querySelector('input').value.trim(); const existingImageUrl = q.options[index] ? q.options[index].imageUrl : null; return { text, imageUrl: existingImageUrl }; }); }
+        function updateQuestionCounter() { $('question-counter-display').textContent = `Questions: ${quizQuestions.length}`; $('prev-question-btn').disabled = currentQuestionIndex === 0; $('next-question-btn').disabled = currentQuestionIndex === quizQuestions.length - 1; }
+        function renderFinalizeList() { $('finalize-list').innerHTML = ''; quizQuestions.forEach((q, index) => { const li = document.createElement('li'); li.textContent = `${index + 1}. ${q.question}`; $('finalize-list').appendChild(li); }); }
+        $('import-excel-btn').addEventListener('click', () => $('excel-file-input').click());
+        
+        $('excel-file-input').addEventListener('change', (event) => {
+            const file = event.target.files[0]; if (!file) return;
+            const importMessage = $('import-message'); importMessage.textContent = 'Processing file...'; importMessage.style.color = 'var(--text-color)';
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0]; const worksheet = workbook.Sheets[sheetName]; const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); 
+                    
+                    if (jsonData.length < 2) { 
+                        importMessage.style.color = 'var(--incorrect-red)';
+                        importMessage.textContent = "The Excel sheet is empty or in an incorrect format.";
+                        return;
+                    }
+
+                    const headers = jsonData[0].map(h => String(h).toLowerCase().trim());
+                    const dataRows = jsonData.slice(1);
+
+                    const questionIndex = headers.indexOf('question');
+                    const imageIndex = headers.indexOf('image');
+                    const timerIndex = headers.indexOf('timer');
+                    const answerIndex = headers.indexOf('answer');
+                    
+                    const optionIndices = [];
+                    headers.forEach((h, i) => {
+                        if (h.startsWith('option')) {
+                            optionIndices.push({ key: h, index: i });
+                        }
+                    });
+                    optionIndices.sort((a, b) => a.key.localeCompare(b.key));
+
+                    if (questionIndex === -1 || answerIndex === -1 || optionIndices.length === 0) {
+                        importMessage.style.color = 'var(--incorrect-red)';
+                        importMessage.textContent = "Missing required columns: 'question', 'answer', and at least one 'option' column.";
+                        return;
+                    }
+
+                    const newQuestions = dataRows.map(row => {
+                        const questionText = String(row[questionIndex] || '');
+                        if (!questionText) return null; 
+
+                        const options = optionIndices.map(opt => ({
+                            text: String(row[opt.index] || '').trim(),
+                            imageUrl: null 
+                        })).filter(opt => opt.text); 
+
+                        const rawAnswer = String(row[answerIndex] || '').trim().toLowerCase();
+                        let cIndex = -1;
+                        if (rawAnswer.length === 1) { 
+                            cIndex = rawAnswer.charCodeAt(0) - 97;
+                        } else { 
+                            cIndex = options.findIndex(opt => opt.text.toLowerCase() === rawAnswer);
+                        }
+                        if (cIndex < 0 || cIndex >= options.length) cIndex = 0; 
+
+                        let imageUrl = (imageIndex > -1 && row[imageIndex] && String(row[imageIndex]).toLowerCase() !== 'n/a') ? String(row[imageIndex]).trim() : null;
+                        
+                        let timer = 20;
+                        if (timerIndex > -1 && row[timerIndex]) {
+                            const parsedTimer = parseInt(String(row[timerIndex]));
+                            if (!isNaN(parsedTimer)) timer = parsedTimer;
+                        }
+
+                        return {
+                            question: questionText,
+                            imageUrl: imageUrl,
+                            options: options.length > 0 ? options : [{text:'', imageUrl: null}],
+                            correctAnswerIndex: cIndex, 
+                            timer: timer
+                        };
+                    }).filter(q => q !== null); 
+
+                    if (newQuestions.length > 0) {
+                        quizQuestions = newQuestions;
+                        currentQuestionIndex = 0;
+                        renderCurrentQuestion();
+                        importMessage.style.color = 'var(--success-green)';
+                        importMessage.textContent = `${newQuestions.length} questions imported successfully!`;
+                    } else {
+                        importMessage.style.color = 'var(--incorrect-red)';
+                        importMessage.textContent = "No valid questions found in the file.";
+                    }
+                } catch (error) {
+                    console.error("Error processing Excel file:", error);
+                    importMessage.style.color = 'var(--incorrect-red)';
+                    importMessage.textContent = "Failed to process file. Ensure it's a valid .xlsx or .xls file.";
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        $('create-game-btn').addEventListener('click', () => showView('template-choice-view'));
+        $('default-template-btn').addEventListener('click', () => { selectedTemplate = 'default'; $('default-template-btn').classList.add('active'); $('custom-template-btn').classList.remove('active'); });
+        $('custom-template-btn').addEventListener('click', () => { selectedTemplate = 'custom'; $('custom-template-btn').classList.add('active'); $('default-template-btn').classList.remove('active'); });
+        $('confirm-template-btn').addEventListener('click', () => { const createView = $('create-quiz-view'); if (selectedTemplate === 'default') { createView.classList.add('template-mode-default'); createView.classList.remove('template-mode-custom'); } else { createView.classList.add('template-mode-custom'); createView.classList.remove('template-mode-default'); } quizQuestions = []; showView('create-quiz-view'); });
+        $('options-container').addEventListener('click', e => { if (e.target.closest('.correct-answer-toggle')) { saveCurrentQuestionState(); quizQuestions[currentQuestionIndex].correctAnswerIndex = parseInt(e.target.closest('.correct-answer-toggle').dataset.index); renderCurrentQuestion(); } });
+        $('add-option-btn').addEventListener('click', () => { saveCurrentQuestionState(); quizQuestions[currentQuestionIndex].options.push({text:'', imageUrl: null}); renderCurrentQuestion(); });
+        $('prev-question-btn').addEventListener('click', () => { saveCurrentQuestionState(); if (currentQuestionIndex > 0) { currentQuestionIndex--; renderCurrentQuestion(); } });
+        $('next-question-btn').addEventListener('click', () => { saveCurrentQuestionState(); if (currentQuestionIndex < quizQuestions.length - 1) { currentQuestionIndex++; renderCurrentQuestion(); } });
+        $('add-question-btn').addEventListener('click', () => { saveCurrentQuestionState(); quizQuestions.push({ question: '', imageUrl: null, options: [{text:'', imageUrl: null},{text:'', imageUrl: null}], correctAnswerIndex: 0, timer: 20 }); currentQuestionIndex = quizQuestions.length - 1; renderCurrentQuestion(); });
+        $('remove-question-btn').addEventListener('click', () => { const importMessage = $('import-message'); if (quizQuestions.length > 1) { quizQuestions.splice(currentQuestionIndex, 1); if (currentQuestionIndex >= quizQuestions.length) currentQuestionIndex = quizQuestions.length - 1; renderCurrentQuestion(); importMessage.textContent = ''; } else { importMessage.style.color = 'var(--incorrect-red)'; importMessage.textContent = "You can't remove the only question!"; setTimeout(() => importMessage.textContent = '', 3000); } });
+        $('submit-quiz-btn').addEventListener('click', () => { saveCurrentQuestionState(); showView('finalize-quiz-view'); });
+        $('edit-quiz-again-btn').addEventListener('click', () => showView('create-quiz-view'));
+        $('back-to-home-btn').addEventListener('click', () => showView('home-view'));
+        $('lobby-copy-pin-btn').addEventListener('click', () => { const textToCopy = $('lobby-pin-display').textContent; const textArea = document.createElement("textarea"); textArea.value = textToCopy; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); $('lobby-copy-pin-btn').textContent = 'Copied!'; } catch (err) { console.error('Failed to copy', err); $('lobby-copy-pin-btn').textContent = 'Error'; } document.body.removeChild(textArea); setTimeout(() => { $('lobby-copy-pin-btn').textContent = 'Copy PIN'; }, 2000); });
+        
+        $('lobby-share-btn').addEventListener('click', () => {
+            const pin = $('lobby-pin-display').textContent;
+            shareToWhatsApp(pin);
+        });
+
+        $('copy-pin-btn').addEventListener('click', () => { const textToCopy = $('game-pin-display').textContent; const textArea = document.createElement("textarea"); textArea.value = textToCopy; document.body.appendChild(textArea); textArea.select(); try { document.execCommand('copy'); $('copy-pin-btn').textContent = 'Copied!'; } catch (err) { console.error('Failed to copy', err); $('copy-pin-btn').textContent = 'Error'; } document.body.removeChild(textArea); setTimeout(() => { $('copy-pin-btn').textContent = 'Copy PIN'; }, 2000); });
+        
+        $('share-pin-btn').addEventListener('click', () => {
+            const pin = $('game-pin-display').textContent;
+            shareToWhatsApp(pin);
+        });
+
+        document.querySelector('.quiz-editor-main').addEventListener('click', e => { const icon = e.target.closest('.add-image-button'); if (icon) { imageTarget = icon.dataset.target; imageTargetIndex = icon.dataset.index ? parseInt(icon.dataset.index) : -1; $('add-image-modal').style.display = 'flex'; } });
+        $('cancel-image-btn').addEventListener('click', () => { $('add-image-modal').style.display = 'none'; });
+        $('save-image-btn').addEventListener('click', () => { const imageUrl = $('image-url-input').value.trim(); if (imageUrl) { saveCurrentQuestionState(); if (imageTarget === 'question') { quizQuestions[currentQuestionIndex].imageUrl = imageUrl; } else if (imageTarget === 'option') { quizQuestions[currentQuestionIndex].options[imageTargetIndex].imageUrl = imageUrl; } renderCurrentQuestion(); } $('add-image-modal').style.display = 'none'; $('image-url-input').value = ''; });
+        $('change-bg-btn').addEventListener('click', () => { $('change-background-modal').style.display = 'flex'; });
+        $('done-bg-btn').addEventListener('click', () => { $('change-background-modal').style.display = 'none'; });
+        $('set-color-btn').addEventListener('click', () => { document.body.style.backgroundColor = $('bg-color-input').value; });
+        $('reset-color-btn').addEventListener('click', () => { document.body.style.backgroundColor = 'var(--bg-color)'; });
+        $('set-bg-image-btn').addEventListener('click', () => { const url = $('bg-image-url-input').value.trim(); if(url) document.body.style.backgroundImage = `url(${url})`; });
+        $('clear-bg-image-btn').addEventListener('click', () => { document.body.style.backgroundImage = 'none'; });
+        $('add-sticker-btn').addEventListener('click', () => { if ($('sticker-grid').childElementCount === 0) { populateStickerGrid(); } $('add-sticker-modal').style.display = 'flex'; });
+        $('close-sticker-modal-btn').addEventListener('click', () => { $('add-sticker-modal').style.display = 'none'; });
+        $('sticker-grid').addEventListener('click', e => { if(e.target.classList.contains('sticker-option')) { const sticker = document.createElement('div'); sticker.className = 'placed-sticker'; sticker.textContent = e.target.textContent; sticker.style.left = '50%'; sticker.style.top = '50%'; $('sticker-canvas').appendChild(sticker); makeDraggable(sticker); $('add-sticker-modal').style.display = 'none'; } });
+        function populateStickerGrid() { $('sticker-grid').innerHTML = ''; stickers.forEach(s => { const btn = document.createElement('button'); btn.className = 'sticker-option'; btn.textContent = s; $('sticker-grid').appendChild(btn); }); }
+        function makeDraggable(element) { let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0; element.onmousedown = dragMouseDown; function dragMouseDown(e) { e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDragElement; document.onmousemove = elementDrag; } function elementDrag(e) { e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; element.style.top = (element.offsetTop - pos2) + "px"; element.style.left = (element.offsetLeft - pos1) + "px"; } function closeDragElement() { document.onmouseup = null; document.onmousemove = null; } }
+        
+        async function populateProfileData() {
+            if (!currentUserId) return;
+            if (!currentUserData) {
+                const userDocSnap = await getDoc(doc(db, "users", currentUserId));
+                if (userDocSnap.exists()) { 
+                    currentUserData = userDocSnap.data(); 
+                    if (!currentUserData.ranks) {
+                        currentUserData.ranks = { first: 0, second: 0, third: 0 };
+                        await updateDoc(doc(db, "users", currentUserId), { ranks: currentUserData.ranks });
+                    }
+                }
+                else { console.error("User doc not found in populateProfileData"); return; }
+            }
+            const userData = currentUserData;
+            $('profile-name-display').textContent = userData.name || 'Anonymous';
+            $('profile-username-display').textContent = `@${userData.username || 'user'}`;
+            $('profile-email-display').textContent = userData.email || 'No email';
+            $('profile-avatar-img').src = userData.avatarUrl || avatars[0];
+            
+            const ranks = userData.ranks || { first: 0, second: 0, third: 0 };
+            $('rank-first-count').textContent = ranks.first || 0;
+            $('rank-second-count').textContent = ranks.second || 0;
+            $('rank-third-count').textContent = ranks.third || 0;
+
+            const games = userData.createdGames || [];
+            $('games-created-count').textContent = games.length;
+            const gamesListDiv = $('created-games-list');
+            gamesListDiv.innerHTML = '<h4>My Quizzes</h4>';
+            if (games.length === 0) { gamesListDiv.innerHTML += '<p>No quizzes created yet.</p>'; }
+            else { games.forEach(game => {
+                    const pin = game.pin;
+                    const name = game.name || `Quiz ${pin}`;
+                    const item = document.createElement('div'); 
+                    item.className = 'created-quiz-item';
+                    item.innerHTML = `<span>${name}</span><button class="btn btn-small" data-pin="${pin}">Manage</button>`;
+                    gamesListDiv.appendChild(item);
+                }); 
+            }
+            const joinedGames = userData.joinedGames || [];
+            const joinedGamesListDiv = $('joined-games-list');
+            joinedGamesListDiv.innerHTML = '<h4>History</h4>';
+            if (joinedGames.length === 0) { joinedGamesListDiv.innerHTML += '<p>No games joined yet.</p>'; }
+            else { 
+                joinedGames.forEach(game => { 
+                    const item = document.createElement('button'); 
+                    item.className = 'btn joined-quiz-item'; 
+                    item.dataset.pin = game.pin;
+                    item.innerHTML = `<span>${game.name || 'Quiz'} (PIN: ${game.pin})</span>`; 
+                    joinedGamesListDiv.appendChild(item); 
+                }); 
+            }
+        }
+        $('created-games-list').addEventListener('click', async e => { if (e.target.classList.contains('btn-small')) { const pin = e.target.dataset.pin; if (pin) await loadHostReport(pin); } });
+        $('joined-games-list').addEventListener('click', async e => { const target = e.target.closest('.joined-quiz-item'); if (target) { const pin = target.dataset.pin; if (pin) await loadGameReport(pin, currentUserId); } });
+        $('back-to-profile-from-report-btn').addEventListener('click', () => showView('profile-view'));
+        $('back-to-profile-from-game-btn').addEventListener('click', () => showView('profile-view'));
+        
+        function populateAvatarGrid() { $('avatar-grid').innerHTML = ''; avatars.forEach(url => { const btn = document.createElement('button'); btn.className = 'avatar-option'; btn.innerHTML = `<img src="${url}" alt="Avatar">`; btn.onclick = () => selectAvatar(url); $('avatar-grid').appendChild(btn); }); }
+        async function selectAvatar(url) { 
+            if (!currentUserId) return; 
+            await updateDoc(doc(db, "users", currentUserId), { avatarUrl: url }); 
+            if (currentUserData) currentUserData.avatarUrl = url;
+            $('profile-avatar-img').src = url; 
+            showView('profile-view'); 
+        }
+        $('hamburger-btn').addEventListener('click', () => $('nav-dropdown').classList.toggle('open'));
+        $('home-nav-btn').addEventListener('click', () => showView('home-view'));
+        $('profile-nav-btn').addEventListener('click', () => showView('profile-view'));
+        $('logout-btn').addEventListener('click', () => { if(gameUnsubscribe) gameUnsubscribe(); if(playerUnsubscribe) playerUnsubscribe(); signOut(auth); });
+        $('edit-avatar-btn').addEventListener('click', () => showView('avatar-view'));
+        $('back-to-profile-btn').addEventListener('click', () => showView('profile-view'));
+        $('edit-name-btn').addEventListener('click', () => { $('name-display-wrapper').style.display = 'none'; $('name-edit-wrapper').style.display = 'block'; $('name-edit-input').value = $('profile-name-display').textContent; $('name-edit-input').focus(); });
+        $('save-name-btn').addEventListener('click', async () => { 
+            const newName = $('name-edit-input').value.trim(); 
+            if (newName && newName !== $('profile-name-display').textContent && currentUserId) { 
+                await updateDoc(doc(db, "users", currentUserId), { name: newName }); 
+                if (currentUserData) currentUserData.name = newName;
+                $('profile-name-display').textContent = newName; 
+            } 
+            $('name-display-wrapper').style.display = 'flex'; 
+            $('name-edit-wrapper').style.display = 'none'; 
+        });
+        $('details-tab-btn').addEventListener('click', (e)=>{ $('details-content').classList.add('active'); $('about-content').classList.remove('active'); e.target.classList.add('active'); $('about-tab-btn').classList.remove('active'); });
+        $('about-tab-btn').addEventListener('click', (e)=>{ $('details-content').classList.remove('active'); $('about-content').classList.add('active'); e.target.classList.add('active'); $('details-tab-btn').classList.remove('active'); });
+        
+        async function mainAuth() {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            setLogLevel('Debug');
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUserId = user.uid;
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userDocSnap = await getDoc(userDocRef);
+                    if (userDocSnap.exists()) {
+                        currentUserData = userDocSnap.data();
+                        if (!currentUserData.ranks) {
+                            currentUserData.ranks = { first: 0, second: 0, third: 0 };
+                            await updateDoc(userDocRef, { ranks: currentUserData.ranks });
+                        }
+                    } else {
+                        currentUserData = { name: "Player", username: "player" + Date.now(), email: user.email || "", avatarUrl: avatars[0], createdGames: [], joinedGames: [], ranks: { first: 0, second: 0, third: 0 } };
+                        try { await setDoc(userDocRef, currentUserData); }
+                        catch (e) { console.warn("Could not create user doc on login:", e.message); }
+                    }
+                    $('auth-page-container').style.display = 'none';
+                    $('app-page-container').style.display = 'block';
+                    showView('home-view');
+                } else {
+                    currentUserId = null;
+                    currentUserData = null;
+                    $('auth-page-container').style.display = 'flex';
+                    $('app-page-container').style.display = 'none';
+                    if(gameUnsubscribe) gameUnsubscribe();
+                    if(playerUnsubscribe) playerUnsubscribe();
+                }
+            });
+            $('login-form').addEventListener('submit', async (e) => { e.preventDefault(); const email = $('login-email').value.trim(); const password = $('login-password').value; const btn = e.target.querySelector('.btn'); btn.disabled = true; messageLabel.textContent = ''; try { await signInWithEmailAndPassword(auth, email, password); } catch (error) { messageLabel.style.color = 'red'; messageLabel.textContent = error.message; } finally { btn.disabled = false; } });
+            $('signup-form').addEventListener('submit', async (e) => { e.preventDefault(); const btn = e.target.querySelector('.btn'); const name = $('signup-name').value.trim(); const email = $('signup-email').value.trim(); const username = $('signup-username').value.trim().toLowerCase(); const password = $('signup-password').value; if (!name || !email || !username || !password) { messageLabel.style.color = 'red'; messageLabel.textContent = "All fields are required!"; return; } btn.disabled = true; messageLabel.textContent = ''; try { const userCredential = await createUserWithEmailAndPassword(auth, email, password); 
+                await setDoc(doc(db, 'users', userCredential.user.uid), { name, username, email, avatarUrl: avatars[0], createdGames: [], joinedGames: [], ranks: { first: 0, second: 0, third: 0 } }); 
+            } catch (error) { messageLabel.style.color = 'red'; console.error("Signup Error:", error); messageLabel.textContent = error.message; } finally { btn.disabled = false; } });
+            $('forgot-password-form').addEventListener('submit', async (e) => { e.preventDefault(); const email = $('reset-email').value.trim(); const btn = e.target.querySelector('.btn'); btn.disabled = true; resetMessageLabel.textContent = ''; try { await sendPasswordResetEmail(auth, email); resetMessageLabel.style.color = 'green'; resetMessageLabel.textContent = 'Success! Check your email for a reset link.'; } catch (error) { resetMessageLabel.style.color = 'red'; resetMessageLabel.textContent = error.message; } finally { btn.disabled = false; } });
+            $('login-tab-btn').addEventListener('click', ()=>{ $('login').classList.add('active'); $('signup').classList.remove('active'); $('login-tab-btn').classList.add('active'); $('signup-tab-btn').classList.remove('active'); });
+            $('signup-tab-btn').addEventListener('click', ()=>{ $('login').classList.remove('active'); $('signup').classList.add('active'); $('login-tab-btn').classList.remove('active'); $('signup-tab-btn').classList.add('active'); });
+            $('forgot-password-link').addEventListener('click', () => { $('auth-views').style.display = 'none'; $('forgot-password-view').style.display = 'block'; });
+            $('back-to-login-link').addEventListener('click', () => { $('auth-views').style.display = 'block'; $('forgot-password-view').style.display = 'none'; });
+        }
+        mainAuth();
+
+        $('generate-pin-btn').addEventListener('click', async () => {
+            const finalizeMessage = $('finalize-message');
+            finalizeMessage.textContent = '';
+            
+            const quizName = $('quiz-name-input').value.trim();
+            if (!quizName) {
+                finalizeMessage.style.color = 'var(--incorrect-red)';
+                finalizeMessage.textContent = "Please enter a name for your quiz.";
+                return;
+            }
+
+            if (!currentUserId) { finalizeMessage.textContent = "Error: You must be logged in."; return; }
+            try { 
+                const pin = Math.floor(100000 + Math.random() * 900000).toString(); 
+                const quizDocRef = doc(db, 'quizzes', pin); 
+                const docSnap = await getDoc(quizDocRef); 
+                if (docSnap.exists()) { finalizeMessage.textContent = "PIN conflict, please try again."; return; } 
+                
+                await setDoc(quizDocRef, { 
+                    creatorId: currentUserId, 
+                    questions: quizQuestions, 
+                    createdAt: serverTimestamp(),
+                    quizName: quizName, 
+                    gameState: { status: 'lobby', currentQuestion: -1, questionStartTime: null }, 
+                }); 
+                
+                const newGameEntry = { pin: pin, name: quizName }; 
+                await updateDoc(doc(db, 'users', currentUserId), { 
+                    createdGames: arrayUnion(newGameEntry)
+                }); 
+                if (currentUserData) { 
+                    if (!currentUserData.createdGames) currentUserData.createdGames = [];
+                    currentUserData.createdGames.push(newGameEntry);
+                }
+
+                currentGamePin = pin;
+                $('lobby-pin-display').textContent = pin; 
+                listenToGameUpdates(pin, true); 
+                showView('game-lobby-view');
+            } catch (error) { console.error("Error generating PIN:", error); finalizeMessage.textContent = "Could not create game: " + error.message; } 
+        });
+
+        $('join-game-btn').addEventListener('click', () => showView('join-quiz-view'));
+        $('join-quiz-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pin = $('game-pin-input').value.trim();
+            const errorLabel = $('join-error-label');
+            if (!pin) return;
+            errorLabel.textContent = '';
+            const quizDocRef = doc(db, 'quizzes', pin);
+            const docSnap = await getDoc(quizDocRef);
+            if (docSnap.exists()) {
+                const quizData = docSnap.data();
+                if (quizData.gameState && (quizData.gameState.status === 'lobby' || quizData.gameState.status === 'initial_leaderboard')) {
+                    currentGamePin = pin;
+                    lastKnownScore = 0; 
+                    lastAnswerSubmitted = null; 
+                    await setDoc(doc(db, 'quizzes', pin, 'players', currentUserId), { 
+                        name: currentUserData.name, 
+                        avatarUrl: currentUserData.avatarUrl, 
+                        score: 0, 
+                        lastAnswerIndex: null,
+                        answers: [] 
+                    });
+                    
+                    const newJoinedGame = { pin: pin, name: quizData.quizName }; 
+                    await updateDoc(doc(db, 'users', currentUserId), { joinedGames: arrayUnion(newJoinedGame) });
+                    if (currentUserData) { 
+                        if (!currentUserData.joinedGames) currentUserData.joinedGames = [];
+                        if (!currentUserData.joinedGames.some(g => g.pin === pin)) {
+                            currentUserData.joinedGames.push(newJoinedGame);
+                        }
+                    }
+
+                    $('wait-lobby-avatar').src = currentUserData.avatarUrl || avatars[0];
+                    $('wait-lobby-username').textContent = currentUserData.name || 'Player';
+                    showView('player-waiting-lobby');
+                    listenToGameUpdates(pin, false);
+                } else {
+                    errorLabel.textContent = "This game is not available to join (it may have already started).";
+                }
+            } else {
+                errorLabel.textContent = "Invalid PIN. Please check the code and try again.";
+            }
+        });
+
+        $('start-game-btn').addEventListener('click', async () => {
+            if (!currentGamePin) return;
+            await updateDoc(doc(db, 'quizzes', currentGamePin), { 'gameState.status': 'initial_leaderboard' });
+        });
+
+        $('host-next-btn').addEventListener('click', async () => {
+            if (!currentQuizData || !currentGamePin) return;
+            const quizDocRef = doc(db, 'quizzes', currentGamePin);
+            const currentState = currentQuizData.gameState.status;
+            if (currentState === 'initial_leaderboard') {
+                await updateDoc(quizDocRef, { 'gameState.status': 'question', 'gameState.currentQuestion': 0, 'gameState.questionStartTime': serverTimestamp() });
+            }
+        });
+        
+        function updateHostQuestionDisplay(questionIndex) {
+            const display = $('host-question-display');
+            if (!display) return;
+            if (questionIndex === -1) { 
+                display.textContent = 'Waiting to Start...';
+            } else if (currentQuizData) {
+                const qNum = questionIndex + 1;
+                const totalQ = currentQuizData.questions.length;
+                display.textContent = `QUESTION: ${qNum} / ${totalQ}`;
+            }
+        }
+
+        function updatePlayerQuestionDisplay(questionIndex) {
+            const display = $('player-question-display');
+            if (!display) return;
+            if (questionIndex === -1) { 
+                display.textContent = 'Waiting...';
+            } else if (currentQuizData) {
+                const qNum = questionIndex + 1;
+                const totalQ = currentQuizData.questions.length;
+                display.textContent = `QUESTION: ${qNum} / ${totalQ}`;
+            }
+        }
+
+        function listenToGameUpdates(pin, isHost) {
+            if (gameUnsubscribe) gameUnsubscribe();
+            if (playerUnsubscribe) playerUnsubscribe();
+            
+            if (isHost) {
+                document.body.classList.add('is-host');
+            } else {
+                document.body.classList.remove('is-host');
+            }
+
+            const quizDocRef = doc(db, 'quizzes', pin);
+            const playersColRef = collection(db, 'quizzes', pin, 'players');
+            
+            playerUnsubscribe = onSnapshot(playersColRef, (snapshot) => {
+                currentPlayersList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                currentPlayersList.sort((a, b) => b.score - a.score); 
+                if (isHost && $('game-lobby-view').classList.contains('active')) {
+                    updateLobbyList(currentPlayersList);
+                }
+                const leaderboardArea = $('leaderboard-area');
+                if ((leaderboardArea && leaderboardArea.style.display === 'block') || (isHost && currentQuizData && (currentQuizData.gameState.status === 'initial_leaderboard' || currentQuizData.gameState.status === 'question' || currentQuizData.gameState.status === 'leaderboard'))) {
+                    renderLeaderboardUI(currentPlayersList, 'leaderboard-area', isHost);
+                }
+                if ($('score-area') && $('score-area').style.display === 'block') {
+                    renderLeaderboardUI(currentPlayersList, 'score-area', isHost, true);
+                }
+            });
+            
+            gameUnsubscribe = onSnapshot(quizDocRef, (docSnap) => {
+                if (!docSnap.exists() || !docSnap.data()) { 
+                    if(gameUnsubscribe) gameUnsubscribe();
+                    if(playerUnsubscribe) playerUnsubscribe();
+                    showView('home-view');
+                    return;
+                }
+                currentQuizData = docSnap.data();
+                if (!currentQuizData.gameState) { console.error("Game state is missing!", currentQuizData); return; }
+                
+                const state = currentQuizData.gameState;
+                currentQuestionInPlayIndex = state.currentQuestion;
+                
+                switch (state.status) {
+                    case 'lobby':
+                        if (isHost) {
+                            showView('game-lobby-view');
+                            updateLobbyList(currentPlayersList);
+                        } else {
+                            $('wait-lobby-avatar').src = currentUserData.avatarUrl || avatars[0];
+                            $('wait-lobby-username').textContent = currentUserData.name || 'Player';
+                            showView('player-waiting-lobby');
+                        }
+                        break;
+                    case 'initial_leaderboard':
+                        showView('play-quiz-view');
+                        if (isHost) {
+                            $('play-area').style.display = 'none';
+                            $('leaderboard-area').style.display = 'block';
+                            $('score-area').style.display = 'none';
+                            $('player-answer-screen').style.display = 'none';
+                            renderLeaderboardUI(currentPlayersList, 'leaderboard-area', isHost);
+                            updateHostQuestionDisplay(-1); 
+                        } else {
+                            $('wait-lobby-avatar').src = currentUserData.avatarUrl || avatars[0];
+                            $('wait-lobby-username').textContent = currentUserData.name || 'Player';
+                            showView('player-waiting-lobby');
+                        }
+                        break;
+                    case 'question':
+                        showView('play-quiz-view');
+                        renderPlayableQuestion(state.currentQuestion, state.questionStartTime, isHost);
+                        if (isHost) {
+                            updateHostQuestionDisplay(state.currentQuestion); 
+                        } else {
+                            updatePlayerQuestionDisplay(state.currentQuestion);
+                        }
+                        break;
+                    case 'leaderboard':
+                        showView('play-quiz-view');
+                        if (isHost) {
+                            renderLeaderboardUI(currentPlayersList, 'leaderboard-area', isHost);
+                            updateHostQuestionDisplay(state.currentQuestion); 
+                            console.log("Host is on leaderboard, starting 5s timer...");
+                            setTimeout(async () => {
+                                const freshDoc = await getDoc(doc(db, 'quizzes', currentGamePin));
+                                if (!freshDoc.exists()) return;
+                                const freshData = freshDoc.data();
+                                if (!freshData || freshData.gameState.status !== 'leaderboard') {
+                                    console.log("Timer fired, but state changed. Aborting.");
+                                    return; 
+                                }
+                                console.log("5s timer finished, advancing question...");
+                                const nextQuestionIndex = freshData.gameState.currentQuestion + 1;
+                                const quizDocRef = doc(db, 'quizzes', currentGamePin);
+                                if (nextQuestionIndex < freshData.questions.length) {
+                                    await updateDoc(quizDocRef, { 'gameState.status': 'question', 'gameState.currentQuestion': nextQuestionIndex, 'gameState.questionStartTime': serverTimestamp() });
+                                } else {
+                                    await updateDoc(quizDocRef, { 'gameState.status': 'finished' });
+                                }
+                            }, 5000); 
+                        } else {
+                            showPlayerAnswerScreen();
+                        }
+                        break;
+                    case 'finished':
+                        calculateAndShowScore(currentPlayersList, isHost);
+                        showView('play-quiz-view');
+                        break;
+                }
+            });
+        }
+
+        function updateLobbyList(players) {
+            const listEl = $('lobby-players-list');
+            listEl.innerHTML = '';
+            if (players.length === 0) {
+                listEl.innerHTML = '<li>Waiting for players...</li>';
+                return;
+            }
+            players.forEach(player => {
+                const li = document.createElement('li');
+                li.textContent = player.name;
+                listEl.appendChild(li);
+            });
+        }
+
+        function renderPlayableQuestion(index, startTime, isHost) {
+            if (!currentQuizData) return; 
+            if (questionTimerInterval) clearInterval(questionTimerInterval);
+            
+            $('player-answer-screen').style.display = 'none';
+
+            const q = currentQuizData.questions[index];
+            const timerBar = $('question-timer-bar');
+            const questionDuration = (q.timer || 20) * 1000;
+            const questionStartTime = startTime ? startTime.toDate() : new Date();
+
+            if (isHost) {
+                $('play-area').style.display = 'none';
+                $('leaderboard-area').style.display = 'block';
+                $('score-area').style.display = 'none';
+                renderLeaderboardUI(currentPlayersList, 'leaderboard-area', isHost);
+            } else {
+                $('play-area').style.display = 'block';
+                $('leaderboard-area').style.display = 'none';
+                $('score-area').style.display = 'none';
+            
+                $('play-question-text').textContent = q.question;
+                $('play-question-image').src = q.imageUrl || '';
+                $('play-question-image').style.display = q.imageUrl ? 'block' : 'none';
+                
+                const optionsContainer = $('play-quiz-options');
+                optionsContainer.innerHTML = '';
+                lastAnswerSubmitted = null; 
+
+                q.options.forEach((opt, i) => { 
+                    const button = document.createElement('button'); 
+                    button.className = 'btn play-option-btn'; 
+                    button.textContent = opt.text; 
+                    button.dataset.index = i; 
+                    
+                    button.onclick = async () => { 
+                        if (isHost) return; 
+                        
+                        optionsContainer.querySelectorAll('.play-option-btn').forEach(btn => {
+                            btn.classList.remove('selected');
+                        });
+                        
+                        button.classList.add('selected'); 
+                        lastAnswerSubmitted = i;
+                        
+                        const playerDocRef = doc(db, 'quizzes', currentGamePin, 'players', currentUserId);
+                        await setDoc(playerDocRef, { 
+                            lastAnswerIndex: i,
+                            lastAnswerTime: serverTimestamp() 
+                        }, { merge: true });
+                    }; 
+                    optionsContainer.appendChild(button); 
+                });
+            }
+
+            questionTimerInterval = setInterval(async () => {
+                const elapsed = new Date() - questionStartTime;
+                let remaining = questionDuration - elapsed;
+                if (remaining < 0) remaining = 0;
+
+                if(!isHost) { 
+                    timerBar.style.width = (remaining / questionDuration) * 100 + '%';
+                }
+
+                if (remaining <= 0) {
+                    clearInterval(questionTimerInterval);
+                    if (isHost) {
+                        console.log("Host timer finished, calculating scores...");
+                        await showLeaderboard(); 
+                    } else {
+                        $('play-quiz-options').querySelectorAll('.play-option-btn').forEach(btn => btn.disabled = true);
+                    }
+                }
+            }, 100);
+        }
+
+        async function showLeaderboard() {
+            if (!currentQuizData || !currentGamePin) return;
+            const q = currentQuizData.questions[currentQuestionInPlayIndex];
+            const questionStartTime = currentQuizData.gameState.questionStartTime.toDate();
+            const questionDuration = (q.timer || 20) * 1000;
+            const playersColRef = collection(db, 'quizzes', currentGamePin, 'players');
+            const playersSnapshot = await getDocs(playersColRef);
+            for (const playerDoc of playersSnapshot.docs) {
+                const playerData = playerDoc.data();
+                let scoreToAdd = 0;
+                let isCorrect = false;
+
+                if (playerData.lastAnswerIndex != null && playerData.lastAnswerIndex === q.correctAnswerIndex) {
+                    const answerTime = playerData.lastAnswerTime ? playerData.lastAnswerTime.toDate() : new Date();
+                    const timeTaken = answerTime - questionStartTime;
+                    isCorrect = true;
+                    if (timeTaken < questionDuration && timeTaken > 0) {
+                        scoreToAdd = Math.round(1000 * ((questionDuration - timeTaken) / questionDuration));
+                    }
+                }
+                
+                const answerReport = {
+                    question: q.question,
+                    options: q.options,
+                    correctAnswerIndex: q.correctAnswerIndex,
+                    submittedAnswerIndex: playerData.lastAnswerIndex,
+                    isCorrect: isCorrect,
+                    scoreGained: scoreToAdd
+                };
+
+                await updateDoc(playerDoc.ref, { 
+                    score: increment(scoreToAdd), 
+                    lastAnswerIndex: null, 
+                    lastAnswerTime: null,
+                    answers: arrayUnion(answerReport) 
+                });
+            }
+            await updateDoc(doc(db, 'quizzes', currentGamePin), { 'gameState.status': 'leaderboard' });
+        }
+
+        function showPlayerAnswerScreen() {
+            $('play-area').style.display = 'none';
+            $('leaderboard-area').style.display = 'none';
+            $('score-area').style.display = 'none';
+            $('player-answer-screen').style.display = 'block';
+
+            const myData = currentPlayersList.find(p => p.id === currentUserId);
+            if (!myData || !currentQuizData) return;
+            
+            const q = currentQuizData.questions[currentQuestionInPlayIndex];
+            
+            const newScore = myData.score;
+            const scoreGained = newScore - lastKnownScore;
+            lastKnownScore = newScore; 
+
+            const isCorrect = (lastAnswerSubmitted === q.correctAnswerIndex);
+            
+            const icon = $('player-answer-icon');
+            const title = $('player-answer-title');
+            const points = $('player-answer-points');
+            const correctText = $('player-answer-correct-text');
+            const rankInfo = $('player-answer-rank-info');
+            
+            if (isCorrect) {
+                icon.className = 'answer-icon correct';
+                icon.innerHTML = '✓';
+                title.textContent = 'Correct!';
+                title.style.color = 'var(--success-green)';
+                points.textContent = `+${scoreGained} Points`;
+                points.style.color = 'var(--success-green)';
+                correctText.style.display = 'none';
+            } else {
+                icon.className = 'answer-icon incorrect';
+                icon.innerHTML = '×';
+                title.textContent = 'Incorrect!';
+                title.style.color = 'var(--incorrect-red)';
+                points.textContent = '+0 Points';
+                points.style.color = 'var(--incorrect-red)';
+                correctText.style.display = 'block';
+                correctText.textContent = `The correct answer was: ${q.options[q.correctAnswerIndex].text}`;
+            }
+
+            $('player-answer-score').textContent = newScore;
+
+            const myRank = currentPlayersList.findIndex(p => p.id === currentUserId) + 1;
+            if (myRank > 0) {
+                const suffix = myRank === 1 ? 'st' : myRank === 2 ? 'nd' : myRank === 3 ? 'rd' : 'th';
+                rankInfo.textContent = `You are in ${myRank}${suffix} place!`;
+                if (myRank > 1) {
+                    const pointsBehind = currentPlayersList[myRank - 2].score - newScore;
+                    if(pointsBehind > 0) {
+                        rankInfo.textContent += ` You are ${pointsBehind} points behind ${currentPlayersList[myRank - 2].name}.`;
+                    }
+                }
+            } else {
+                rankInfo.textContent = 'You are not on the leaderboard yet.';
+            }
+        }
+
+
+        function renderLeaderboardUI(players, containerId, isHost, isFinal = false) {
+            const container = $(containerId);
+            if (!container) return;
+            
+            if (!isFinal) {
+                if (!isHost) { 
+                    // This is handled by showPlayerAnswerScreen
+                }
+            }
+
+            const listEl = container.querySelector('.leaderboard-rest');
+            const top3Container = container.querySelector('.leaderboard-top3');
+            if(listEl) listEl.innerHTML = '';
+            const place1El = top3Container ? top3Container.querySelector('.place-1') : null;
+            const place2El = top3Container ? top3Container.querySelector('.place-2') : null;
+            const place3El = top3Container ? top3Container.querySelector('.place-3') : null;
+            if(place1El) place1El.innerHTML = '';
+            if(place2El) place2El.innerHTML = '';
+            if(place3El) place3El.innerHTML = '';
+            if (players.length > 0 && place1El) {
+                place1El.innerHTML = `
+                    <div class="leaderboard-avatar-box">
+                        <img src="${players[0].avatarUrl || avatars[0]}" class="leaderboard-avatar">
+                        <span class="leaderboard-rank-badge crown">👑</span>
+                    </div>
+                    <span class="leaderboard-name">${players[0].name}</span>
+                    <span class="leaderboard-score">${players[0].score}</span>
+                `;
+            }
+            if (players.length > 1 && place2El) {
+                place2El.innerHTML = `
+                    <div class="leaderboard-avatar-box">
+                        <img src="${players[1].avatarUrl || avatars[0]}" class="leaderboard-avatar">
+                        <span class="leaderboard-rank-badge">2</span>
+                    </div>
+                    <span class="leaderboard-name">${players[1].name}</span>
+                    <span class="leaderboard-score">${players[1].score}</span>
+                `;
+            }
+            if (players.length > 2 && place3El) {
+                place3El.innerHTML = `
+                    <div class="leaderboard-avatar-box">
+                        <img src="${players[2].avatarUrl || avatars[0]}" class="leaderboard-avatar">
+                        <span class="leaderboard-rank-badge">3</span>
+                    </div>
+                    <span class="leaderboard-name">${players[2].name}</span>
+                    <span class="leaderboard-score">${players[2].score}</span>
+                `;
+            }
+            if(listEl) {
+                players.slice(3).forEach((player, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'leaderboard-item-rest';
+                    li.innerHTML = `
+                        <span class="leaderboard-rank">#${index + 4}</span>
+                        <img src="${player.avatarUrl || avatars[0]}" class="leaderboard-avatar" />
+                        <span class="leaderboard-name">${player.name}</span>
+                        <span class="leaderboard-score">${player.score}</span>
+                    `;
+                    listEl.appendChild(li);
+                });
+            }
+            if (containerId === 'leaderboard-area') {
+                const hostNextBtn = $('host-next-btn');
+                if(!hostNextBtn) return;
+                
+                if (isHost) {
+                    const currentState = currentQuizData ? currentQuizData.gameState.status : '';
+                    if (currentState === 'initial_leaderboard') {
+                        hostNextBtn.style.display = 'block'; 
+                        hostNextBtn.textContent = 'Start First Question';
+                    } else {
+                        hostNextBtn.style.display = 'none';
+                    }
+                } else {
+                    hostNextBtn.style.display = 'none';
+                }
+            }
+        }
+
+        async function calculateAndShowScore(players, isHost) {
+            if (!currentQuizData) return;
+            $('play-area').style.display = 'none';
+            $('leaderboard-area').style.display = 'none';
+            $('player-answer-screen').style.display = 'none'; 
+            $('score-area').style.display = 'block';
+            
+            const myData = players.find(p => p.id === currentUserId);
+            const myScore = myData ? myData.score : 0;
+            
+            $('quiz-score-display').textContent = myScore;
+            
+            renderLeaderboardUI(players, 'score-area', isHost, true);
+
+            // --- NEW: Update Podium Finishes ---
+            try {
+                if (players[0]) {
+                    await updateDoc(doc(db, "users", players[0].id), { 'ranks.first': increment(1) });
+                }
+                if (players[1]) {
+                    await updateDoc(doc(db, "users", players[1].id), { 'ranks.second': increment(1) });
+                }
+                if (players[2]) {
+                    await updateDoc(doc(db, "users", players[2].id), { 'ranks.third': increment(1) });
+                }
+            } catch (err) {
+                console.error("Error updating player ranks:", err);
+            }
+            
+            if (gameUnsubscribe) gameUnsubscribe();
+            if (playerUnsubscribe) playerUnsubscribe();
+            currentGamePin = null;
+            currentQuizData = null;
+            currentPlayersList = [];
+        }
+        $('play-again-btn').addEventListener('click', () => showView('home-view'));
+
+        async function loadHostReport(pin) {
+            try {
+                const quizDocRef = doc(db, 'quizzes', pin);
+                const quizSnap = await getDoc(quizDocRef);
+                if (!quizSnap.exists()) {
+                    alert("Quiz not found!");
+                    return;
+                }
+                const quizData = quizSnap.data();
+
+                if (quizData.gameState.status !== 'finished') {
+                    currentGamePin = pin;
+                    $('lobby-pin-display').textContent = pin; 
+                    listenToGameUpdates(pin, true); 
+                    showView('game-lobby-view');
+                    return;
+                }
+
+                $('host-report-title').textContent = `Report: ${quizData.quizName}`;
+                const participantsList = $('host-report-participants');
+                participantsList.innerHTML = '<p>Loading participants...</p>';
+
+                const playersColRef = collection(db, 'quizzes', pin, 'players');
+                const playersSnap = await getDocs(playersColRef);
+                
+                participantsList.innerHTML = ''; 
+                
+                if (playersSnap.empty) {
+                    participantsList.innerHTML = '<p>No players joined this game.</p>';
+                }
+
+                playersSnap.docs.forEach(playerDoc => {
+                    const playerData = playerDoc.data();
+                    const btn = document.createElement('button');
+                    btn.className = 'btn';
+                    btn.textContent = `${playerData.name} (Score: ${playerData.score})`;
+                    btn.onclick = () => {
+                        loadGameReport(pin, playerDoc.id, playerData.name);
+                    };
+                    participantsList.appendChild(btn);
+                });
+
+                showView('host-report-selection-view');
+
+            } catch (error) {
+                console.error("Error loading host report:", error);
+                alert("Could not load report: " + error.message);
+            }
+        }
+
+        async function loadGameReport(pin, playerId, playerName = "Your") {
+            try {
+                const quizDocRef = doc(db, 'quizzes', pin);
+                const playerDocRef = doc(db, 'quizzes', pin, 'players', playerId);
+
+                const [quizSnap, playerSnap] = await Promise.all([getDoc(quizDocRef), getDoc(playerDocRef)]);
+
+                if (!quizSnap.exists() || !playerSnap.exists()) {
+                    alert("Error: Game or player data not found.");
+                    return;
+                }
+
+                const quizData = quizSnap.data();
+                const playerData = playerSnap.data();
+
+                $('game-report-title').textContent = `${quizData.quizName}`;
+                $('game-report-subtitle').textContent = `${playerName}'s Report - Final Score: ${playerData.score}`;
+                
+                const reportItemsContainer = $('game-report-items');
+                reportItemsContainer.innerHTML = '';
+
+                if (!playerData.answers || playerData.answers.length === 0) {
+                    reportItemsContainer.innerHTML = '<p>No answer data was recorded for this game.</p>';
+                    showView('game-report-view');
+                    return;
+                }
+
+                playerData.answers.forEach((answer, index) => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'report-item';
+                    
+                    let optionsHTML = '';
+                    answer.options.forEach((opt, optIndex) => {
+                        let classNames = 'report-option';
+                        if (optIndex === answer.correctAnswerIndex) {
+                            classNames += ' correct';
+                        }
+                        if (optIndex === answer.submittedAnswerIndex) {
+                            classNames += ' submitted';
+                        }
+                        optionsHTML += `<span class="${classNames}">${opt.text}</span>`;
+                    });
+
+                    itemEl.innerHTML = `
+                        <h4>Q${index + 1}: ${answer.question}</h4>
+                        ${optionsHTML}
+                    `;
+                    reportItemsContainer.appendChild(itemEl);
+                });
+
+                showView('game-report-view');
+
+            } catch (error) {
+                console.error("Error loading game report:", error);
+                alert("Could not load game report: " + error.message);
+            }
+        }
+
+        $('feedback-nav-btn').addEventListener('click', () => {
+            $('feedback-form-content').style.display = 'block';
+            $('feedback-thanks-content').style.display = 'none';
+            $('feedback-text').value = '';
+            $('feedback-message').textContent = '';
+            currentRating = 0;
+            updateStars(0);
+            $('feedback-modal').style.display = 'flex';
+        });
+
+        $('cancel-feedback-btn').addEventListener('click', () => {
+            $('feedback-modal').style.display = 'none';
+        });
+
+        $('close-thanks-btn').addEventListener('click', () => {
+            $('feedback-modal').style.display = 'none';
+        });
+
+        $('feedback-stars').addEventListener('click', e => {
+            if (e.target.classList.contains('star')) {
+                currentRating = parseInt(e.target.dataset.value);
+                updateStars(currentRating);
+            }
+        });
+
+        $('feedback-stars').addEventListener('mouseover', e => {
+            if (e.target.classList.contains('star')) {
+                updateStars(parseInt(e.target.dataset.value));
+            }
+        });
+
+        $('feedback-stars').addEventListener('mouseout', () => {
+            updateStars(currentRating); 
+        });
+
+        function updateStars(rating) {
+            const stars = document.querySelectorAll('#feedback-stars .star');
+            stars.forEach(star => {
+                if (parseInt(star.dataset.value) <= rating) {
+                    star.classList.add('selected');
+                    star.textContent = '★';
+                } else {
+                    star.classList.remove('selected');
+                    star.textContent = '☆';
+                }
+            });
+        }
+
+        $('submit-feedback-btn').addEventListener('click', async () => {
+            const feedbackText = $('feedback-text').value.trim();
+            const message = $('feedback-message');
+            message.textContent = '';
+
+            if (currentRating === 0) {
+                message.style.color = 'var(--incorrect-red)';
+                message.textContent = 'Please select a star rating.';
+                return;
+            }
+
+            const feedback = {
+                rating: currentRating,
+                review: feedbackText,
+                userId: currentUserId,
+                username: currentUserData.name || 'Anonymous',
+                timestamp: serverTimestamp()
+            };
+
+            const btn = $('submit-feedback-btn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            try {
+                await addDoc(collection(db, 'feedback'), feedback);
+                $('feedback-form-content').style.display = 'none';
+                $('feedback-thanks-content').style.display = 'block';
+            } catch (error) {
+                console.error("Error submitting feedback:", error);
+                message.style.color = 'var(--incorrect-red)';
+                message.textContent = 'Could not submit feedback. ' + error.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Submit';
+            }
+        });
+
+    </script>
+</body>
+</html>
