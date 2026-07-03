@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pulse Rush - App</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div id="auth-page-container">
@@ -12,8 +14,8 @@
         <div class="form-container">
           <div id="auth-views">
             <div class="tabs">
-              <button class="tab-link active" id="login-tab-btn">Log in</button
-              ><button class="tab-link" id="signup-tab-btn">Sign up</button>
+              <button class="tab-link active" id="login-tab-btn">Log in</button>
+              <button class="tab-link" id="signup-tab-btn">Sign up</button>
             </div>
             <div id="messageLabel" class="message-label"></div>
             <div id="login" class="tab-content active">
@@ -23,13 +25,15 @@
                   id="login-email"
                   placeholder="E-mail"
                   required
-                /><input
+                />
+                <input
                   type="password"
                   id="login-password"
                   placeholder="Password"
                   required
-                /><button type="submit" class="btn">Log in</button
-                ><a class="forgot-password" id="forgot-password-link"
+                />
+                <button type="submit" class="btn">Log in</button>
+                <a class="forgot-password" id="forgot-password-link"
                   >Forgot password?</a
                 >
               </form>
@@ -41,23 +45,27 @@
                   id="signup-name"
                   placeholder="Full Name"
                   required
-                /><input
+                />
+                <input
                   type="email"
                   id="signup-email"
                   placeholder="E-mail"
                   required
-                /><input
+                />
+                <input
                   type="text"
                   id="signup-username"
                   placeholder="Username"
                   required
-                /><input
+                />
+                <input
                   type="password"
                   id="signup-password"
                   placeholder="Password"
                   required
                   minlength="6"
-                /><button type="submit" class="btn">Sign-up</button>
+                />
+                <button type="submit" class="btn">Sign-up</button>
               </form>
             </div>
           </div>
@@ -70,8 +78,9 @@
                 id="reset-email"
                 placeholder="Enter your email"
                 required
-              /><button type="submit" class="btn">Send Reset Link</button
-              ><a class="back-link" id="back-to-login-link">Back to Login</a>
+              />
+              <button type="submit" class="btn">Send Reset Link</button>
+              <a class="back-link" id="back-to-login-link">Back to Login</a>
             </form>
           </div>
         </div>
@@ -98,8 +107,9 @@
             <h1 class="logo">pulse rush</h1>
             <div class="form-container">
               <button class="btn home-button" id="create-game-btn">
-                Create Game</button
-              ><button class="btn home-button" id="join-game-btn">
+                Create Game
+              </button>
+              <button class="btn home-button" id="join-game-btn">
                 Join Game
               </button>
             </div>
@@ -352,7 +362,6 @@
               >
                 <p>E-mail: <span id="profile-email-display"></span></p>
                 <hr />
-                <!-- *** REMOVED "Podium Finishes" h3 and the <hr> after it *** -->
                 <div class="podium-stats">
                   <div class="podium-item">
                     <span class="podium-icon">🥇</span>
@@ -522,8 +531,8 @@
                   class="input-with-icon"
                   style="margin-bottom: 1rem; text-align: left"
                 >
-                  <label for="timer-input">Timer (seconds): </label
-                  ><input
+                  <label for="timer-input">Timer (seconds): </label>
+                  <input
                     type="number"
                     id="timer-input"
                     value="20"
@@ -566,7 +575,6 @@
             <h1 class="logo">pulse rush</h1>
             <div class="form-container">
               <h2>Review Your Quiz</h2>
-
               <input
                 type="text"
                 id="quiz-name-input"
@@ -574,7 +582,6 @@
                 required
                 style="margin-bottom: 1rem"
               />
-
               <ul id="finalize-list" class="finalize-list"></ul>
               <div
                 id="finalize-message"
@@ -596,6 +603,7 @@
             </div>
           </div>
         </div>
+
         <div id="pin-view" class="content-view">
           <div class="page-container" style="max-width: 450px">
             <h1 class="logo">pulse rush</h1>
@@ -603,12 +611,10 @@
               <h2>Quiz Successfully Created!</h2>
               <p>Your unique game PIN is:</p>
               <div class="pin-box"><h2 id="game-pin-display"></h2></div>
-
               <div class="button-group">
                 <button class="btn copy-btn" id="copy-pin-btn">Copy PIN</button>
                 <button class="btn share-btn" id="share-pin-btn">Share</button>
               </div>
-
               <button
                 class="btn"
                 id="back-to-home-btn"
@@ -745,6 +751,7 @@
         </div>
       </div>
     </div>
-    <script type="module" src="main.js"></script>
+
+    <script type="module" src="app.js"></script>
   </body>
 </html>
