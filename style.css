@@ -1,5 +1,34 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap");
 
+/* Example using CSS Variables */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #333333;
+  --form-bg: #f9f9f9;
+  --border-color: #dddddd;
+}
+
+/* Make sure this class matches what your JavaScript uses */
+body.dark-theme {
+  --bg-color: #121212;
+  --text-color: #ffffff;
+  --form-bg: #1e1e1e;
+  --border-color: #444444;
+}
+
+/* Apply variables to your elements */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.form-container {
+  background: var(--form-bg);
+  border: 1px solid var(--border-color);
+}
 :root {
   --bg-color: #ffd93d;
   --primary-pink: #ff006e;
