@@ -1554,3 +1554,38 @@ body.dark-theme .report-item {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.2s;
 }
+/* Add this at the bottom of your CSS file */
+.question-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* Optional: style the Q1 block so it looks like your pink badge */
+.question-number {
+  background-color: #ff007f; /* Your theme's hot pink */
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+/* Dark mode toggle layout fix to prevent overlap */
+.dark-mode-toggle-btn,
+#change-theme-btn,
+.theme-toggle-container button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 16px;
+  white-space: nowrap; /* Keeps text and moon on a single line */
+}

@@ -1154,3 +1154,36 @@ export async function loadGameReport(pin, playerId, playerName = "Your") {
   });
   showView("game-report-view");
 }
+// --- Local File Upload Handler ---
+
+const localFileInput = document.getElementById("local-file-input");
+const fileNameDisplay = document.getElementById("file-name-display");
+
+// Check if the element exists first to prevent console errors
+if (localFileInput) {
+  localFileInput.addEventListener("change", function (event) {
+    const file = event.target.files[0];
+
+    if (file) {
+      // 1. Show the chosen file name next to the button
+      if (fileNameDisplay) {
+        fileNameDisplay.textContent = file.name;
+      }
+
+      // 2. Create a temporary URL pointing to the local file
+      const localImageURL = URL.createObjectURL(file);
+
+      // 3. Render it to your question card preview element
+      displayImageOnCard(localImageURL);
+    }
+  });
+}
+
+function displayImageOnCard(url) {
+  // Targets the specific image preview element we added to your index.html
+  const targetImg = document.getElementById("question-image-preview");
+  if (targetImg) {
+    targetImg.src = url;
+    targetImg.style.display = "block"; // Makes it visible once loaded
+  }
+}
