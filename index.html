@@ -476,89 +476,46 @@
           </div>
         </div>
 
-        <div id="create-quiz-view" class="content-view">
+       <div id="create-quiz-view" class="content-view">
           <div class="page-container">
             <div id="question-counter-display">Questions: 1</div>
             <div class="create-quiz-header">
               <h1 class="logo">pulse rush</h1>
             </div>
-
+            
             <div class="quiz-editor-layout">
               <div class="quiz-editor-sidebar">
                 <button class="btn" id="change-bg-btn">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M21.5 12c0-5.25-4.25-9.5-9.5-9.5S2.5 6.75 2.5 12s4.25 9.5 9.5 9.5s9.5-4.25 9.5-9.5z"
-                    />
-                    <path d="M12 2.5C12 2.5 7.5 6 7.5 12s4.5 9.5 4.5 9.5" />
-                    <path d="M2.5 12h19" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.5 12c0-5.25-4.25-9.5-9.5-9.5S2.5 6.75 2.5 12s4.25 9.5 9.5 9.5s9.5-4.25 9.5-9.5z"/>
+                    <path d="M12 2.5C12 2.5 7.5 6 7.5 12s4.5 9.5 4.5 9.5"/>
+                    <path d="M2.5 12h19"/>
                   </svg>
                   Change Background
                 </button>
                 <button class="btn" id="add-sticker-btn">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M8.5 10.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"
-                    />
-                    <path
-                      d="M15.5 10.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"
-                    />
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                    />
-                    <path d="M16.5 15c-1.42-1.42-3.58-1.42-5 0" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8.5 10.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/>
+                    <path d="M15.5 10.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/>
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                    <path d="M16.5 15c-1.42-1.42-3.58-1.42-5 0"/>
                   </svg>
                   Add Sticker
                 </button>
                 <button class="btn" id="import-excel-btn">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M4 15h16v4h-16v-4z" />
-                    <path d="M4 5h16v4h-16v-4z" />
-                    <path d="M12 9v6" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 15h16v4h-16v-4z"/>
+                    <path d="M4 5h16v4h-16v-4z"/>
+                    <path d="M12 9v6"/>
                   </svg>
                   Import from Excel
                 </button>
-                <input
-                  type="file"
-                  id="excel-file-input"
-                  accept=".xlsx, .xls"
-                  style="display: none"
-                />
+                <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none" />
               </div>
 
-              <div class="quiz-editor-main form-container">
+              <div class="quiz-editor-main form-container" id="options-container">
                 <div class="question-meta-row">
-                  <div class="meta-item question-number">Q1</div>
+                  <div class="meta-item question-number" id="question-number-label">Q1</div>
                   <div class="meta-item">
                     <label for="timer-input">Timer (sec):</label>
                     <input type="number" id="timer-input" value="20" />
@@ -570,67 +527,51 @@
                 </div>
 
                 <div class="question-card-input input-with-icon">
-                  <input
-                    type="text"
-                    id="question-input"
-                    placeholder="Enter Question"
-                  />
-                  <button
-                    type="button"
-                    class="add-image-button"
-                    data-target="question"
-                  >
-                    <img
-                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3C/svg%3E"
-                      alt="Add"
-                    />
+                  <input type="text" id="question-input" placeholder="Enter Question" />
+                  <button type="button" class="add-image-button" data-target="question">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3C/svg%3E" alt="Add" />
                   </button>
                 </div>
 
-                <div
-                  id="import-message"
-                  class="message-label"
-                  style="
-                    min-height: 1.2rem;
-                    margin-bottom: 1rem;
-                    font-weight: 600;
-                  "
-                ></div>
-                <img
-                  src=""
-                  class="image-preview"
-                  id="question-image-preview"
-                  style="display: none"
-                  alt="Preview"
-                />
+                <div class="quiz-options-inputs-container" style="margin: 1.5rem 0; display: flex; flex-direction: column; gap: 0.8rem;">
+                  <div class="option-input" style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="text" id="option-1-input" placeholder="Option 1" style="flex: 1; padding: 10px;" />
+                    <input type="radio" name="correct-answer" value="0" id="correct-1" title="Mark as Correct" required />
+                  </div>
+                  <div class="option-input" style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="text" id="option-2-input" placeholder="Option 2" style="flex: 1; padding: 10px;" />
+                    <input type="radio" name="correct-answer" value="1" id="correct-2" title="Mark as Correct" />
+                  </div>
+                  <div class="option-input" style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="text" id="option-3-input" placeholder="Option 3" style="flex: 1; padding: 10px;" />
+                    <input type="radio" name="correct-answer" value="2" id="correct-3" title="Mark as Correct" />
+                  </div>
+                  <div class="option-input" style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="text" id="option-4-input" placeholder="Option 4" style="flex: 1; padding: 10px;" />
+                    <input type="radio" name="correct-answer" value="3" id="correct-4" title="Mark as Correct" />
+                  </div>
+                  <small style="color: #666; font-weight: 600;">Select the radio button next to the correct answer.</small>
+                </div>
+
+                <div id="import-message" class="message-label" style="min-height: 1.2rem; margin-bottom: 1rem; font-weight: 600;"></div>
+                <img src="" class="image-preview" id="question-image-preview" style="display: none;" alt="Preview" />
 
                 <div class="create-quiz-actions">
                   <button class="btn" id="prev-question-btn">← Back</button>
                   <button class="btn" id="next-question-btn">Next →</button>
-                  <button class="btn" id="remove-question-btn">
-                    Remove Card
-                  </button>
+                  <button class="btn" id="remove-question-btn">Remove Card</button>
                 </div>
                 <div class="create-quiz-actions" style="margin-top: 1rem">
-                  <button
-                    class="btn"
-                    id="add-question-btn"
-                    style="background: #555"
-                  >
-                    Add Question
-                  </button>
-                  <button
-                    class="btn"
-                    id="submit-quiz-btn"
-                    style="background: var(--success-green)"
-                  >
-                    Submit
-                  </button>
+                  <button class="btn" id="add-question-btn" style="background: #555">Add Question</button>
+                  <button class="btn" id="submit-quiz-btn" style="background: var(--success-green)">Submit</button>
                 </div>
               </div>
+              
             </div>
           </div>
         </div>
+
+            
 
         <div id="finalize-quiz-view" class="content-view">
           <div class="page-container" style="max-width: 450px">
@@ -769,15 +710,23 @@
           <button id="set-color-btn" class="btn">Set Color</button>
           <button id="reset-color-btn" class="btn">Reset Color</button>
           <hr style="margin: 1.5rem 0" />
+          
           <p><strong>OR</strong></p>
-          <input
-            type="text"
-            id="bg-image-url-input"
-            placeholder="Paste Image URL..."
-          />
-          <button id="set-bg-image-btn" class="btn">
-            Set Background Image
-          </button>
+          
+          <div class="image-source-options" style="margin-bottom: 1rem;">
+            <label>Paste Image URL:</label>
+            <input type="text" id="bg-image-url-input" placeholder="Paste Image URL..." />
+            <button id="set-bg-image-btn" class="btn">Set Background Image</button>
+            
+            <p style="margin: 0.8rem 0;">— OR —</p>
+            
+            <label for="bg-local-file-input" class="custom-file-upload" style="display: block; padding: 10px; background: #555; color: #fff; border-radius: 5px; cursor: pointer; text-align: center;">
+              📁 Choose from Desktop
+            </label>
+            <input type="file" id="bg-local-file-input" accept="image/*" style="display: none" />
+            <span id="bg-file-name-display" style="display: block; margin-top: 0.5rem; font-size: 0.9rem; font-weight: 600;">No file chosen</span>
+          </div>
+
           <button id="clear-bg-image-btn" class="btn" style="background: #777">
             Clear Background Image
           </button>

@@ -20,6 +20,56 @@ let quizQuestions = [],
 let selectedTemplate = "default";
 const stickers = ["⭐", "❤️", "💡", "❓", "🎯", "🎉", "💯", "✔️"];
 
+
+
+// Read current active item configuration out from our state array down onto UI inputs
+function loadQuestionIntoUI() {
+  if (quizQuestions.length === 0) {
+    quizQuestions.push({
+      questionText: "",
+      timer: 20,
+      maxPoints: 1000,
+      options: ["", "", "", ""],
+      correctOptionIndex: null
+    });
+  }
+
+  const currentQ = quizQuestions[currentQuestionIndex];
+  
+  // Sync label counts counters displays
+  const numLabel = document.getElementById("question-number-label");
+  const counterDisp = document.getElementById("question-counter-display");
+  if (numLabel) numLabel.textContent = `Q${currentQuestionIndex + 1}`;
+  if (counterDisp) counterDisp.textContent = `Questions: ${quizQuestions.length}`;
+
+  // Distribute strings properties back to inputs fields
+  const qInput = document.getElementById("question-input");
+  const tInput = document.getElementById("timer-input");
+  const pInput = document.getElementById("points-input");
+  
+  if (qInput) qInput.value = currentQ.questionText || "";
+  if (tInput) tInput.value = currentQ.timer || 20;
+  if (pInput) pInput.value = currentQ.maxPoints || 1000;
+  
+  const op1 = document.getElementById("option-1-input");
+  const op2 = document.getElementById("option-2-input");
+  const op3 = document.getElementById("option-3-input");
+  const op4 = document.getElementById("option-4-input");
+  
+  if (op1) op1.value = currentQ.options[0] || "";
+  if (op2) op2.value = currentQ.options[1] || "";
+  if (op3) op3.value = currentQ.options[2] || "";
+  if (op4) op4.value = currentQ.options[3] || "";
+
+  // Reset checked configuration states radio inputs tracking
+  const radios = document.querySelectorAll('input[name="correct-answer"]');
+  radios.forEach(radio => radio.checked = false);
+  if (currentQ.correctOptionIndex !== null) {
+    const targetRadio = document.getElementById(`correct-${currentQ.correctOptionIndex + 1}`);
+    if (targetRadio) targetRadio.checked = true;
+  }
+}
+
 export function initQuiz() {
   $("create-game-btn").addEventListener("click", () =>
     showView("template-choice-view"),
@@ -58,14 +108,8 @@ export function initQuiz() {
       renderCurrentQuestion();
     }
   });
-  $("add-option-btn").addEventListener("click", () => {
-    saveCurrentQuestionState();
-    quizQuestions[currentQuestionIndex].options.push({
-      text: "",
-      imageUrl: null,
-    });
-    renderCurrentQuestion();
-  });
+  // Add this inside initQuiz(), right below your other button listeners
+  
   $("prev-question-btn").addEventListener("click", () => {
     saveCurrentQuestionState();
     if (currentQuestionIndex > 0) {
@@ -327,18 +371,26 @@ function renderCurrentQuestion() {
 function saveCurrentQuestionState() {
   if (quizQuestions.length === 0) return;
   const q = quizQuestions[currentQuestionIndex];
-  q.question = $("question-input").value.trim();
-  q.timer = parseInt($("timer-input").value) || 20;
-  q.maxPoints = parseInt($("points-input").value) || 1000;
+  
+  // FIXED: Added '#' inside the selector strings
+  const questionInput = $("#question-input");
+  const timerInput = $("#timer-input");
+  const pointsInput = $("#points-input");
+  const optionsContainer = $("#options-container");
 
-  const optionInputs = $("options-container").querySelectorAll(".option-input");
-  q.options = Array.from(optionInputs).map((optEl, index) => {
-    const text = optEl.querySelector("input").value.trim();
-    const existingImageUrl = q.options[index]
-      ? q.options[index].imageUrl
-      : null;
-    return { text, imageUrl: existingImageUrl };
-  });
+  if (questionInput) q.question = questionInput.value.trim();
+  if (timerInput) q.timer = parseInt(timerInput.value) || 20;
+  if (pointsInput) q.maxPoints = parseInt(pointsInput.value) || 1000;
+
+  if (optionsContainer) {
+    const optionInputs = optionsContainer.querySelectorAll(".option-input");
+    q.options = Array.from(optionInputs).map((optEl, index) => {
+      const inputEl = optEl.querySelector("input");
+      const text = inputEl ? inputEl.value.trim() : "";
+      const existingImageUrl = q.options[index] ? q.options[index].imageUrl : null;
+      return { text, imageUrl: existingImageUrl };
+    });
+  }
 }
 
 export function renderFinalizeList() {
@@ -1177,3 +1229,90 @@ function displayImageOnCard(url) {
     targetImg.style.display = "block";
   }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const bgFileInput = document.getElementById("bg-local-file-input");
+  const bgFileNameDisplay = document.getElementById("bg-file-name-display");
+
+  if (bgFileInput) {
+    bgFileInput.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      
+      if (file) {
+        // Update the file name label text
+        bgFileNameDisplay.textContent = file.name;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const localImageUrl = e.target.result;
+          
+          // Apply background styling instantly to the target canvas/body
+          document.body.style.backgroundImage = `url('${localImageUrl}')`;
+          document.body.style.backgroundSize = "cover";
+          document.body.style.backgroundPosition = "center";
+          document.body.style.backgroundRepeat = "no-repeat";
+          
+          // Optional: Clear out standard background colors so the image shows cleanly
+          document.body.style.backgroundColor = "transparent";
+        };
+        
+        // Read the local file metadata as a data url string
+        reader.readAsDataURL(file);
+      } else {
+        bgFileNameDisplay.textContent = "No file chosen";
+      }
+    });
+  }
+});
+
+document.getElementById("clear-bg-image-btn").addEventListener("click", () => {
+  // Reset the background image properties completely
+  document.body.style.backgroundImage = "none";
+  
+  // Revert back to the default theme background variable instead of white
+  document.body.style.backgroundColor = "var(--bg-color)";
+  
+  // Clear file input cache track memory and label text resets
+  const bgFileNameDisplay = document.getElementById("bg-file-name-display");
+  const bgFileInput = document.getElementById("bg-local-file-input");
+  
+  if (bgFileNameDisplay) bgFileNameDisplay.textContent = "No file chosen";
+  if (bgFileInput) bgFileInput.value = ""; 
+});
+
+function initQuizEditorButtons() {
+  const backBtn = document.getElementById("prev-question-btn");
+  const nextBtn = document.getElementById("next-question-btn");
+  const addBtn = document.getElementById("add-question-btn");
+
+  // Handle the "← Back" button click execution
+  if (backBtn) {
+    backBtn.onclick = (e) => {
+      e.preventDefault();
+      console.log("Back button clicked");
+      // Your custom layout logic here: e.g., currentQuestionIndex--; renderQuestionCard();
+    };
+  }
+
+  // Handle the "Next →" button click execution
+  if (nextBtn) {
+    nextBtn.onclick = (e) => {
+      e.preventDefault();
+      console.log("Next button clicked");
+      // Your custom layout logic here: e.g., currentQuestionIndex++; renderQuestionCard();
+    };
+  }
+
+  // Handle the "Add Question" button click execution
+  if (addBtn) {
+    addBtn.onclick = (e) => {
+      e.preventDefault();
+      console.log("Add Question button clicked");
+      // Your custom layout logic here: e.g., quizDataArray.push(newBlankQuestion());
+    };
+  }
+}
+
+// CRITICAL: Call this function inside your window setup loop OR 
+// right after you dynamically draw/render a new question card!
+initQuizEditorButtons();

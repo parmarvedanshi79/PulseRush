@@ -1607,22 +1607,30 @@ body.dark-theme .report-item {
   font-weight: bold;
 }
 
-/* Dark mode toggle layout fix to prevent overlap */
-.dark-mode-toggle-btn,
-#change-theme-btn,
-.theme-toggle-container button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 16px;
-  white-space: nowrap; /* Keeps text and moon on a single line */
+/* Fix the alignment and prevent overlapping by pinning the button to the bottom right */
+.theme-switch-container {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 9999; /* Keeps it on top of all views and modals */
 }
-/* Fix the alignment and prevent overlapping for the top right theme button */
+
 #global-theme-toggle-btn.theme-switch-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px;
-  white-space: nowrap; /* Forces text/emoji to stay on one clean line */
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  background-color: var(--form-bg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: transform 0.2s ease, background-color 0.3s;
+}
+
+#global-theme-toggle-btn.theme-switch-btn:hover {
+  transform: scale(1.08);
 }
